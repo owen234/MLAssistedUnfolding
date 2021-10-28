@@ -10,7 +10,7 @@ To run it, do something like this
 ```
 <start root>
 .L fill_hists1.c
-fill_hists f(<dnn output TTree file>)
+fill_hists f("dnn-output-file-name.root")
 f.Loop()
 ```
 
