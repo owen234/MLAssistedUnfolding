@@ -18,10 +18,7 @@ TH2F* get_hist( const char* hname ) {
    void unfold_comp1( const char* hist_name_a = "h_log10_x_gen_vs_obs_dnn",
                       const char* hist_name_b = "h_log10_x_gen_vs_obs_e",
                       int ngen = 1e5,
-                      const char* meth_a_label = "DNN",
-                      const char* meth_b_label = "e",
-                      const char* var_label = "log10(x)",
-                      const char* input_file = "unfold-hists-input-nbins_gen020_obs050.root" ) {
+                      const char* input_file = "example-input-nbins_gen020_obs050.root" ) {
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -101,6 +98,8 @@ TH2F* get_hist( const char* hname ) {
       // get unfolded distribution
       TH1 *histMunfold_a = unfold_a.GetOutput("Unfolded_a");
       TH1 *histMunfold_b = unfold_b.GetOutput("Unfolded_b");
+      histMunfold_a -> SetTitle( "Unfolded, a" ) ;
+      histMunfold_b -> SetTitle( "Unfolded, b" ) ;
 
       // get unfolding result, folded back
       TH1 *histMdetFold_a = unfold_a.GetFoldedOutput("FoldedBack_a");
@@ -114,6 +113,46 @@ TH2F* get_hist( const char* hname ) {
       //   added in quadrature to the data statistical errors
       TH2 *histEmatTotal_a=unfold_a.GetEmatrixTotal("EmatTotal_a");
       TH2 *histEmatTotal_b=unfold_b.GetEmatrixTotal("EmatTotal_b");
+      histEmatTotal_a -> SetTitle( "Covariance matrix, a" ) ;
+      histEmatTotal_b -> SetTitle( "Covariance matrix, b" ) ;
+
+
+      //-- calculate the correlation coefficients matrix
+      TH2* correlation_matrix_a = (TH2*) histEmatTotal_a -> Clone( "correlation_matrix_a" ) ;
+      TH2* correlation_matrix_b = (TH2*) histEmatTotal_b -> Clone( "correlation_matrix_b" ) ;
+      correlation_matrix_a -> SetTitle( "Correlation coefficients, a" ) ;
+      correlation_matrix_b -> SetTitle( "Correlation coefficients, b" ) ;
+
+      for ( int xbi=1; xbi<=histEmatTotal_a->GetNbinsX(); xbi++ ) {
+         for ( int ybi=1; ybi<=histEmatTotal_a->GetNbinsY(); ybi++ ) {
+
+            float rho = 1. ;
+            float sigma_x2, sigma_y2 ;
+
+            sigma_x2 = histEmatTotal_a->GetBinContent( xbi, xbi ) ;
+            sigma_y2 = histEmatTotal_a->GetBinContent( ybi, ybi ) ;
+            if ( sigma_x2 > 0 && sigma_y2 > 0 ) {
+               rho = histEmatTotal_a -> GetBinContent( xbi, ybi )  / sqrt( sigma_x2 * sigma_y2 ) ;
+            }
+            correlation_matrix_a -> SetBinContent( xbi, ybi, rho ) ;
+
+            sigma_x2 = histEmatTotal_b->GetBinContent( xbi, xbi ) ;
+            sigma_y2 = histEmatTotal_b->GetBinContent( ybi, ybi ) ;
+            if ( sigma_x2 > 0 && sigma_y2 > 0 ) {
+               rho = histEmatTotal_b -> GetBinContent( xbi, ybi )  / sqrt( sigma_x2 * sigma_y2 ) ;
+            }
+            correlation_matrix_b -> SetBinContent( xbi, ybi, rho ) ;
+
+         } // ybi
+      } // xbi
+
+      correlation_matrix_a -> SetMinimum( -1. ) ;
+      correlation_matrix_b -> SetMinimum( -1. ) ;
+
+      correlation_matrix_a -> SetMaximum(  1. ) ;
+      correlation_matrix_b -> SetMaximum(  1. ) ;
+
+
 
       // create data histogram with the total errors
       int nGen = histMunfold_a -> GetNbinsX() ;
@@ -151,6 +190,8 @@ TH2F* get_hist( const char* hname ) {
                                         &gHistInvEMatrix // store inverse of error matrix
                                         );
 
+      histRhoi_a -> SetTitle( "Global correlation, a" ) ;
+      histRhoi_b -> SetTitle( "Global correlation, b" ) ;
 
 
       gStyle -> SetOptStat(0) ;
@@ -174,8 +215,8 @@ TH2F* get_hist( const char* hname ) {
 
       TH1* h_unfold_err_ratio = (TH1*) histMunfold_b -> Clone( "h_unfold_err_ratio" ) ;
 
-      h_unfold_err_ratio -> SetYTitle( "Unfolded error ratio" ) ;
-      h_unfold_err_ratio -> SetTitle( "" ) ;
+      h_unfold_err_ratio -> SetYTitle( "Unfolded error ratio a/b" ) ;
+      h_unfold_err_ratio -> SetTitle( "Unfolded error ratio a/b" ) ;
 
       h_unfold_err_a -> SetFillColor( kBlue-9 ) ;
       h_unfold_err_b -> SetFillColor( kRed-9 ) ;
@@ -199,38 +240,67 @@ TH2F* get_hist( const char* hname ) {
 
 
       TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "can1" ) ;
-      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 800, 1300 ) ;
+      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 1500, 1100 ) ;
       can1 -> Clear() ;
       can1 -> cd() ;
 
-      can1 -> Divide(2,3) ;
+      can1 -> Divide(5,3) ;
+
+      int ci(1) ;
 
 
-      can1 -> cd(1) ;
+     //-----
+
+      can1 -> cd(ci++) ;
       h_in_gen_vs_obs_a -> Draw("colz") ;
 
-      can1 -> cd(2) ;
+      can1 -> cd(ci++) ;
       histMunfold_a -> Draw() ;
       h_gen_compare_a -> Draw("same hist") ;
 
+      can1 -> cd(ci++) ;
+      histRhoi_a -> Draw() ;
+      gPad -> SetGridy(1) ;
 
-      can1 -> cd(3) ;
+      can1 -> cd(ci++) ;
+      histEmatTotal_a -> Draw("colz") ;
+
+      can1 -> cd(ci++) ;
+      correlation_matrix_a -> Draw( "colz" ) ;
+
+     //-----
+
+      can1 -> cd(ci++) ;
       h_in_gen_vs_obs_b -> Draw("colz") ;
 
-      can1 -> cd(4) ;
+      can1 -> cd(ci++) ;
       histMunfold_b -> Draw() ;
       h_gen_compare_b -> Draw("same hist") ;
 
-      can1 -> cd(5) ;
+      can1 -> cd(ci++) ;
+      histRhoi_b -> Draw() ;
+      gPad -> SetGridy(1) ;
+
+      can1 -> cd(ci++) ;
+      histEmatTotal_b -> Draw("colz") ;
+
+      can1 -> cd(ci++) ;
+      correlation_matrix_b -> Draw( "colz" ) ;
+
+
+     //-----
+
+
+      can1 -> cd(ci++) ;
       h_unfold_err_ratio -> Draw( "hist" ) ;
       gPad -> SetGridy(1) ;
 
-      can1 -> cd(6) ;
+
+      can1 -> cd(ci++) ;
       h_unfold_err_b -> Draw( "E2" ) ;
       h_unfold_err_a -> Draw("E2 same") ;
       gPad -> SetGridy(1) ;
       h_unfold_err_a -> Draw("axig same") ;
-
 
    }
 
