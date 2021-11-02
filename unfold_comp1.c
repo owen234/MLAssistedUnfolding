@@ -6,6 +6,7 @@
 
 
 #include "histio.c"
+#include "draw_obs_in_gen_slices.c"
 
 TH2F* get_hist( const char* hname ) {
    TH2F* hp = (TH2F*) gDirectory -> FindObject( hname ) ;
@@ -18,9 +19,14 @@ TH2F* get_hist( const char* hname ) {
    void unfold_comp1( const char* hist_name_a = "h_log10_x_gen_vs_obs_dnn",
                       const char* hist_name_b = "h_log10_x_gen_vs_obs_e",
                       int ngen = 1e5,
-                      const char* input_file = "example-input-nbins_gen020_obs050.root" ) {
+                      //const char* input_file = "example-input-nbins_gen020_obs050.root"
+                      const char* input_file = "h1-input-nbins_gen020_obs050-b2b.root"
+                      ) {
+
+      TRandom3 tran(12345) ;
 
       gDirectory -> Delete( "h*" ) ;
+      gStyle -> SetPalette( kBird ) ;
 
       loadHist( input_file ) ;
 
@@ -47,6 +53,61 @@ TH2F* get_hist( const char* hname ) {
       h_obs_random_b->FillRandom( h_obs_source_b, ngen ) ;
 
 
+
+
+     //-- Add underflows and overflows to fake data!
+      float underflow_mean ;
+      float overflow_mean ;
+      int nbins_obs = h_obs_source_a -> GetNbinsX() ;
+      float nobs_source ;
+      float nobs_integral ;
+      float nobs_underflow ;
+      float nobs_overflow ;
+
+
+
+      nobs_integral = h_obs_source_a -> Integral() ;
+      nobs_underflow = h_obs_source_a -> GetBinContent(0) ;
+      nobs_overflow = h_obs_source_a -> GetBinContent( nbins_obs+1 ) ;
+
+      printf("  h_obs_source_a :  integral %9.5f, underflow %9.5f, overflow %9.5f\n", nobs_integral, nobs_underflow, nobs_overflow ) ;
+
+      nobs_source = nobs_integral ;
+      nobs_source += nobs_underflow ;
+      nobs_source += nobs_overflow ;
+
+      underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
+      overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+
+      h_obs_random_a -> SetBinContent( 0, tran.Poisson( underflow_mean ) ) ;
+      h_obs_random_a -> SetBinContent( nbins_obs+1, tran.Poisson( overflow_mean ) ) ;
+
+
+
+      nobs_integral = h_obs_source_b -> Integral() ;
+      nobs_underflow = h_obs_source_b -> GetBinContent(0) ;
+      nobs_overflow = h_obs_source_b -> GetBinContent( nbins_obs+1 ) ;
+
+      printf("  h_obs_source_b :  integral %9.5f, underflow %9.5f, overflow %9.5f\n", nobs_integral, nobs_underflow, nobs_overflow ) ;
+
+      nobs_source = nobs_integral ;
+      nobs_source += nobs_underflow ;
+      nobs_source += nobs_overflow ;
+
+
+      underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
+      overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+
+      h_obs_random_b -> SetBinContent( 0, tran.Poisson( underflow_mean ) ) ;
+      h_obs_random_b -> SetBinContent( nbins_obs+1, tran.Poisson( overflow_mean ) ) ;
+
+
+
+
+
+
+
+
       TUnfoldDensity unfold_a( h_in_gen_vs_obs_a, TUnfold::kHistMapOutputVert ) ;
       TUnfoldDensity unfold_b( h_in_gen_vs_obs_b, TUnfold::kHistMapOutputVert ) ;
 
@@ -66,9 +127,13 @@ TH2F* get_hist( const char* hname ) {
       // use automatic L-curve scan: start with taumin=taumax=0.0
       Double_t tauMin=0.0;
       Double_t tauMax=0.0;
+      //Double_t tauMin=0.00001;
+      //Double_t tauMax=0.1;
       Int_t iBest;
-      TSpline *logTauX,*logTauY;
-      TGraph *lCurve;
+      TSpline *logTauX_a,*logTauY_a;
+      TSpline *logTauX_b,*logTauY_b;
+      TGraph *lCurve_a;
+      TGraph *lCurve_b;
 
       // if required, report Info messages (for debugging the L-curve scan)
       Int_t oldinfo=gErrorIgnoreLevel;
@@ -76,8 +141,8 @@ TH2F* get_hist( const char* hname ) {
 
       // this method scans the parameter tau and finds the kink in the L curve
       // finally, the unfolding is done for the best choice of tau
-      iBest=unfold_a.ScanLcurve(nScan,tauMin,tauMax,&lCurve,&logTauX,&logTauY);
-      iBest=unfold_b.ScanLcurve(nScan,tauMin,tauMax,&lCurve,&logTauX,&logTauY);
+      iBest=unfold_a.ScanLcurve( nScan, tauMin, tauMax, &lCurve_a, &logTauX_a, &logTauY_a );
+      iBest=unfold_b.ScanLcurve( nScan, tauMin, tauMax, &lCurve_b, &logTauX_b, &logTauY_b );
 
       // if required, switch to previous log-level
       gErrorIgnoreLevel=oldinfo;
@@ -238,13 +303,15 @@ TH2F* get_hist( const char* hname ) {
 
       h_unfold_err_ratio -> SetMaximum(1.1) ;
 
+      histRhoi_a->SetMaximum(1.1) ;
+      histRhoi_b->SetMaximum(1.1) ;
 
       TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "can1" ) ;
-      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 1500, 1100 ) ;
+      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 1300, 1100 ) ;
       can1 -> Clear() ;
       can1 -> cd() ;
 
-      can1 -> Divide(5,3) ;
+      can1 -> Divide(4,3) ;
 
       int ci(1) ;
 
@@ -265,9 +332,6 @@ TH2F* get_hist( const char* hname ) {
       can1 -> cd(ci++) ;
       histEmatTotal_a -> Draw("colz") ;
 
-      can1 -> cd(ci++) ;
-      correlation_matrix_a -> Draw( "colz" ) ;
-
      //-----
 
       can1 -> cd(ci++) ;
@@ -284,12 +348,7 @@ TH2F* get_hist( const char* hname ) {
       can1 -> cd(ci++) ;
       histEmatTotal_b -> Draw("colz") ;
 
-      can1 -> cd(ci++) ;
-      correlation_matrix_b -> Draw( "colz" ) ;
-
-
      //-----
-
 
       can1 -> cd(ci++) ;
       h_unfold_err_ratio -> Draw( "hist" ) ;
@@ -301,6 +360,88 @@ TH2F* get_hist( const char* hname ) {
       h_unfold_err_a -> Draw("E2 same") ;
       gPad -> SetGridy(1) ;
       h_unfold_err_a -> Draw("axig same") ;
+
+
+      can1 -> cd(ci++) ;
+      draw_obs_in_gen_slices( h_in_gen_vs_obs_a, false ) ;
+
+      can1 -> cd(ci++) ;
+      draw_obs_in_gen_slices( h_in_gen_vs_obs_b, false ) ;
+
+
+
+
+      can1 -> Update() ; can1 -> Draw() ;
+      gSystem -> ProcessEvents() ;
+
+
+
+
+
+     //-----
+
+      TCanvas* can2 = (TCanvas*) gDirectory -> FindObject( "can2" ) ;
+      if ( can2 == 0x0 ) can2 = new TCanvas( "can2", "", 1350, 50, 330, 730 ) ;
+      can2 -> Clear() ;
+      can2 -> cd() ;
+      can2 -> Divide(1,2) ;
+
+        Int_t nb = 90 ;
+
+        const Int_t Number = 3 ;
+        Double_t Length[Number] = {0.,0.5, 1.} ;
+        Double_t Red[Number] = {0.,1.,1.} ;
+        Double_t Green[Number] = {0.,1.,0.} ;
+        Double_t Blue[Number] = {1.,1.,0.} ;
+        TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
+
+      correlation_matrix_a -> SetContour( nb ) ;
+      correlation_matrix_b -> SetContour( nb ) ;
+
+      ci = 1 ;
+
+      can2 -> cd(ci++) ;
+      correlation_matrix_a -> Draw( "colz" ) ;
+
+      can2 -> cd(ci++) ;
+      correlation_matrix_b -> Draw( "colz" ) ;
+
+
+
+     //-----
+
+      TCanvas* can3 = (TCanvas*) gDirectory -> FindObject( "can3" ) ;
+      if ( can3 == 0x0 ) can3 = new TCanvas( "can3", "", 1730, 50, 500, 800 ) ;
+
+      can3 -> Clear() ;
+      can3 -> cd() ;
+      can3 -> Divide(2,3) ;
+
+      ci = 1 ;
+
+      can3 -> cd(ci++) ;
+      lCurve_a -> Draw() ;
+
+      can3 -> cd(ci++) ;
+      lCurve_b -> Draw() ;
+
+      can3 -> cd(ci++) ;
+      logTauX_a -> Draw() ;
+
+      can3 -> cd(ci++) ;
+      logTauX_b -> Draw() ;
+
+
+      can3 -> cd(ci++) ;
+      logTauY_a -> Draw() ;
+
+      can3 -> cd(ci++) ;
+      logTauY_b -> Draw() ;
+
+
+
+
+
 
    }
 

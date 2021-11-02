@@ -8,6 +8,9 @@
 
 void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_event, int first_event, const char* out_file )
 {
+
+   //////float wgt = 1. ; // for athena only
+
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntries();
@@ -16,11 +19,18 @@ void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
 
    gDirectory -> Delete( "h*" ) ;
 
-   float xmin = 1e-3 ;
-   float xmax = 1.1 ;
-   ///////float ymin = 1e-3 ;
-   float ymin = 1e-2 ;
-   float ymax = 1.1 ;
+   ///float xmin = 1e-3 ;
+   //float xmax = 1.1 ;
+   float xmin = pow( 10, -2.5 ) ;
+   float xmax = pow( 10, -0.3 ) ;
+
+   ///float ymin = 1e-3 ;
+   /////float ymin = 1e-2 ;
+   //float ymax = 1.1 ;
+   //float ymin = pow( 10, -2.5 ) ;
+   float ymin = pow( 10, -2.3 ) ;
+   float ymax = pow( 10, -0.2 ) ;
+
    float q2min = 1e2 ;
    /////float q2max = 1e5 ;
    float q2max = 1e4 ;
@@ -39,6 +49,12 @@ void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    TH2F* h_log10_y_gen_vs_obs_e      = new TH2F( "h_log10_y_gen_vs_obs_e", "h_log10_y_gen_vs_obs_e", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
    TH2F* h_log10_y_gen_vs_obs_isigma = new TH2F( "h_log10_y_gen_vs_obs_isigma", "h_log10_y_gen_vs_obs_isigma", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
    TH2F* h_log10_y_gen_vs_obs_da     = new TH2F( "h_log10_y_gen_vs_obs_da", "h_log10_y_gen_vs_obs_da", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
+
+   TH2F* h_x_gen_vs_obs_dnn    = new TH2F( "h_x_gen_vs_obs_dnn", "h_x_gen_vs_obs_dnn", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
+   TH2F* h_x_gen_vs_obs_e      = new TH2F( "h_x_gen_vs_obs_e", "h_x_gen_vs_obs_e", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
+   TH2F* h_x_gen_vs_obs_isigma = new TH2F( "h_x_gen_vs_obs_isigma", "h_x_gen_vs_obs_isigma", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
+   TH2F* h_x_gen_vs_obs_da     = new TH2F( "h_x_gen_vs_obs_da", "h_x_gen_vs_obs_da", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
+
 
    h_log10_q2_gen_vs_obs_dnn    -> SetXTitle( "Obs log10(Q2), DNN" ) ;
    h_log10_q2_gen_vs_obs_e      -> SetXTitle( "Obs log10(Q2), e" ) ;
@@ -73,6 +89,18 @@ void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    h_log10_y_gen_vs_obs_da     -> SetYTitle( "Gen log10(y), DA" ) ;
 
 
+   h_x_gen_vs_obs_dnn    -> SetXTitle( "Obs x, DNN" ) ;
+   h_x_gen_vs_obs_e      -> SetXTitle( "Obs x, e" ) ;
+   h_x_gen_vs_obs_isigma -> SetXTitle( "Obs x, ISigma" ) ;
+   h_x_gen_vs_obs_da     -> SetXTitle( "Obs x, DA" ) ;
+
+   h_x_gen_vs_obs_dnn    -> SetYTitle( "Gen x, DNN" ) ;
+   h_x_gen_vs_obs_e      -> SetYTitle( "Gen x, e" ) ;
+   h_x_gen_vs_obs_isigma -> SetYTitle( "Gen x, ISigma" ) ;
+   h_x_gen_vs_obs_da     -> SetYTitle( "Gen x, DA" ) ;
+
+
+
    if ( last_event > 0 ) {
       nentries = last_event ;
    }
@@ -94,8 +122,8 @@ void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
 
 
       if ( from_tlv_gen_Q2 < 220 ) continue ;
-      if ( Empz < 45 ) continue ;
-      if ( Empz > 65 ) continue ;
+////  if ( Empz < 45 ) continue ; // unnecessary.  already in DNN ntuple maker
+////  if ( Empz > 65 ) continue ;
 
       float log10_gen_Q2 = log10(from_tlv_gen_Q2) ;
       float log10_gen_x = log10(from_tlv_gen_x) ;
@@ -115,6 +143,11 @@ void fill_hists1::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
       h_log10_y_gen_vs_obs_e -> Fill( log10(obs_y_e), log10_gen_y, wgt ) ;
       h_log10_y_gen_vs_obs_isigma -> Fill( log10(obs_y_ISigma), log10_gen_y, wgt ) ;
       h_log10_y_gen_vs_obs_da -> Fill( log10(obs_y_DA), log10_gen_y, wgt ) ;
+
+      h_x_gen_vs_obs_dnn -> Fill( (dnn_x), from_tlv_gen_x, wgt ) ;
+      h_x_gen_vs_obs_e -> Fill( (obs_x_e), from_tlv_gen_x, wgt ) ;
+      h_x_gen_vs_obs_isigma -> Fill( (obs_x_ISigma), from_tlv_gen_x, wgt ) ;
+      h_x_gen_vs_obs_da -> Fill( (obs_x_DA), from_tlv_gen_x, wgt ) ;
 
    } // jentry
 
