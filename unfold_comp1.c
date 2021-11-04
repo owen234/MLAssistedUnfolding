@@ -19,7 +19,7 @@ TH2F* get_hist( const char* hname ) {
    void unfold_comp1( const char* hist_name_a = "h_log10_x_gen_vs_obs_dnn",
                       const char* hist_name_b = "h_log10_x_gen_vs_obs_e",
                       int ngen = 1e5,
-                      const char* input_file = "example-input-nbins_gen020_obs050.root"
+                      const char* input_file = "example-input-nbins_gen010_obs020.root"
                       ) {
 
       TRandom3 tran(12345) ;
@@ -448,7 +448,7 @@ TH2F* get_hist( const char* hname ) {
 
       printf("\n\n\n") ;
 
-      printf(" cut and past for this:\n\n") ;
+      printf(" cut and paste for this:\n\n") ;
 
       printf("     unfold_comp1(\"%s\",\"%s\",%d,\"%s\")\n",
           hist_name_a, hist_name_b, ngen, input_file ) ;
