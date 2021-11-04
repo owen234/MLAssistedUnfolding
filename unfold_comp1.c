@@ -19,8 +19,7 @@ TH2F* get_hist( const char* hname ) {
    void unfold_comp1( const char* hist_name_a = "h_log10_x_gen_vs_obs_dnn",
                       const char* hist_name_b = "h_log10_x_gen_vs_obs_e",
                       int ngen = 1e5,
-                      //const char* input_file = "example-input-nbins_gen020_obs050.root"
-                      const char* input_file = "h1-input-nbins_gen020_obs050-b2b.root"
+                      const char* input_file = "example-input-nbins_gen020_obs050.root"
                       ) {
 
       TRandom3 tran(12345) ;
@@ -76,8 +75,11 @@ TH2F* get_hist( const char* hname ) {
       nobs_source += nobs_underflow ;
       nobs_source += nobs_overflow ;
 
-      underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
-      overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+      /////underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
+      /////overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+
+      underflow_mean = ngen * ( nobs_underflow / nobs_integral ) ; // ngen only fills inside of histogram (integral)
+      overflow_mean = ngen * ( nobs_overflow / nobs_integral ) ;
 
       h_obs_random_a -> SetBinContent( 0, tran.Poisson( underflow_mean ) ) ;
       h_obs_random_a -> SetBinContent( nbins_obs+1, tran.Poisson( overflow_mean ) ) ;
@@ -95,8 +97,12 @@ TH2F* get_hist( const char* hname ) {
       nobs_source += nobs_overflow ;
 
 
-      underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
-      overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+      //////underflow_mean = ngen * ( nobs_underflow / nobs_source ) ;
+      //////overflow_mean = ngen * ( nobs_overflow / nobs_source ) ;
+
+      underflow_mean = ngen * ( nobs_underflow / nobs_integral ) ; // ngen only fills inside of histogram (integral)
+      overflow_mean = ngen * ( nobs_overflow / nobs_integral ) ;
+
 
       h_obs_random_b -> SetBinContent( 0, tran.Poisson( underflow_mean ) ) ;
       h_obs_random_b -> SetBinContent( nbins_obs+1, tran.Poisson( overflow_mean ) ) ;
@@ -410,38 +416,45 @@ TH2F* get_hist( const char* hname ) {
 
      //-----
 
-      TCanvas* can3 = (TCanvas*) gDirectory -> FindObject( "can3" ) ;
-      if ( can3 == 0x0 ) can3 = new TCanvas( "can3", "", 1730, 50, 500, 800 ) ;
+ ///  TCanvas* can3 = (TCanvas*) gDirectory -> FindObject( "can3" ) ;
+ ///  if ( can3 == 0x0 ) can3 = new TCanvas( "can3", "", 1730, 50, 500, 800 ) ;
 
-      can3 -> Clear() ;
-      can3 -> cd() ;
-      can3 -> Divide(2,3) ;
+ ///  can3 -> Clear() ;
+ ///  can3 -> cd() ;
+ ///  can3 -> Divide(2,3) ;
 
-      ci = 1 ;
+ ///  ci = 1 ;
 
-      can3 -> cd(ci++) ;
-      lCurve_a -> Draw() ;
+ ///  can3 -> cd(ci++) ;
+ ///  lCurve_a -> Draw() ;
 
-      can3 -> cd(ci++) ;
-      lCurve_b -> Draw() ;
+ ///  can3 -> cd(ci++) ;
+ ///  lCurve_b -> Draw() ;
 
-      can3 -> cd(ci++) ;
-      logTauX_a -> Draw() ;
+ ///  can3 -> cd(ci++) ;
+ ///  logTauX_a -> Draw() ;
 
-      can3 -> cd(ci++) ;
-      logTauX_b -> Draw() ;
-
-
-      can3 -> cd(ci++) ;
-      logTauY_a -> Draw() ;
-
-      can3 -> cd(ci++) ;
-      logTauY_b -> Draw() ;
+ ///  can3 -> cd(ci++) ;
+ ///  logTauX_b -> Draw() ;
 
 
+ ///  can3 -> cd(ci++) ;
+ ///  logTauY_a -> Draw() ;
+
+ ///  can3 -> cd(ci++) ;
+ ///  logTauY_b -> Draw() ;
 
 
 
+      printf("\n\n\n") ;
+
+      printf(" cut and past for this:\n\n") ;
+
+      printf("     unfold_comp1(\"%s\",\"%s\",%d,\"%s\")\n",
+          hist_name_a, hist_name_b, ngen, input_file ) ;
+
+
+      printf("\n\n\n") ;
 
    }
 
