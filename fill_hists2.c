@@ -41,6 +41,31 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    float q2min = 1e2 ;
    float q2max = 1e4 ;
 
+
+
+
+
+
+   TH2F* h_dummy_log10_q2_vs_log10_x_gen = new TH2F( "h_dummy_log10_q2_vs_log10_x_gen", "Gen Template for 2D unfolding, log10 Q2 vs log10 x",
+        nbins_gen, log10(xmin), log10(xmax),    nbins_gen, log10(q2min), log10(q2max) ) ;
+
+   TH2F* h_dummy_log10_q2_vs_log10_x_obs = new TH2F( "h_dummy_log10_q2_vs_log10_x_obs", "Obs Template for 2D unfolding, log10 Q2 vs log10 x",
+        nbins_obs, log10(xmin), log10(xmax),    nbins_obs, log10(q2min), log10(q2max) ) ;
+
+   RooUnfoldResponse* rur_2D_log10_q2_vs_log10_x_dnn = new RooUnfoldResponse( h_dummy_log10_q2_vs_log10_x_obs, h_dummy_log10_q2_vs_log10_x_gen,
+         "rur_2D_log10_q2_vs_log10_x_dnn", "rur_2D_log10_q2_vs_log10_x_dnn" ) ;
+   RooUnfoldResponse* rur_2D_log10_q2_vs_log10_x_e   = new RooUnfoldResponse( h_dummy_log10_q2_vs_log10_x_obs, h_dummy_log10_q2_vs_log10_x_gen,
+         "rur_2D_log10_q2_vs_log10_x_e", "rur_2D_log10_q2_vs_log10_x_e" ) ;
+   RooUnfoldResponse* rur_2D_log10_q2_vs_log10_x_isigma = new RooUnfoldResponse( h_dummy_log10_q2_vs_log10_x_obs, h_dummy_log10_q2_vs_log10_x_gen,
+         "rur_2D_log10_q2_vs_log10_x_isigma", "rur_2D_log10_q2_vs_log10_x_isigma" ) ;
+   RooUnfoldResponse* rur_2D_log10_q2_vs_log10_x_da = new RooUnfoldResponse( h_dummy_log10_q2_vs_log10_x_obs, h_dummy_log10_q2_vs_log10_x_gen,
+         "rur_2D_log10_q2_vs_log10_x_da", "rur_2D_log10_q2_vs_log10_x_da" ) ;
+
+
+
+
+
+
    RooUnfoldResponse* rur_log10_q2_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10(q2min), log10(q2max), nbins_gen, log10(q2min), log10(q2max), "rur_log10_q2_gen_vs_obs_dnn", "rur_log10_q2_gen_vs_obs_dnn" ) ;
 
 
@@ -185,6 +210,10 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
       rur_log10_y_gen_vs_obs_isigma -> Fill( log10(obs_y_ISigma), log10_gen_y, wgt ) ;
       rur_log10_y_gen_vs_obs_da -> Fill( log10(obs_y_DA), log10_gen_y, wgt ) ;
 
+      rur_2D_log10_q2_vs_log10_x_dnn    -> Fill( log10(dnn_x), log10(dnn_Q2),   log10_gen_x, log10_gen_Q2,  wgt ) ;
+      rur_2D_log10_q2_vs_log10_x_e      -> Fill( log10(obs_x_e), log10(obs_Q2_e),   log10_gen_x, log10_gen_Q2,  wgt ) ;
+      rur_2D_log10_q2_vs_log10_x_isigma -> Fill( log10(obs_x_ISigma), log10(obs_Q2_ISigma),   log10_gen_x, log10_gen_Q2,  wgt ) ;
+      rur_2D_log10_q2_vs_log10_x_da     -> Fill( log10(obs_x_DA), log10(obs_Q2_DA),   log10_gen_x, log10_gen_Q2,  wgt ) ;
 
 
    } // jentry
@@ -215,6 +244,11 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    tf.WriteTObject( rur_log10_y_gen_vs_obs_e, rur_log10_y_gen_vs_obs_e->GetName() ) ;
    tf.WriteTObject( rur_log10_y_gen_vs_obs_isigma, rur_log10_y_gen_vs_obs_isigma->GetName() ) ;
    tf.WriteTObject( rur_log10_y_gen_vs_obs_da, rur_log10_y_gen_vs_obs_da->GetName() ) ;
+
+   tf.WriteTObject( rur_2D_log10_q2_vs_log10_x_dnn, rur_2D_log10_q2_vs_log10_x_dnn->GetName() ) ;
+   tf.WriteTObject( rur_2D_log10_q2_vs_log10_x_e, rur_2D_log10_q2_vs_log10_x_e->GetName() ) ;
+   tf.WriteTObject( rur_2D_log10_q2_vs_log10_x_isigma, rur_2D_log10_q2_vs_log10_x_isigma->GetName() ) ;
+   tf.WriteTObject( rur_2D_log10_q2_vs_log10_x_da, rur_2D_log10_q2_vs_log10_x_da->GetName() ) ;
 
 
    tf.Close() ;
