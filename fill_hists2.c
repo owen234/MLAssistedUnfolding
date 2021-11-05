@@ -28,18 +28,49 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
 
    Long64_t nentries = fChain->GetEntries();
 
-   printf("\n\n Ntuple has %lld entries\n\n", nentries ) ;
-
    gDirectory -> Delete( "h*" ) ;
 
-   float xmin = pow( 10, -2.5 ) ;
-   float xmax = pow( 10, -0.3 ) ;
+   printf("\n\n Ntuple has %lld entries\n\n", nentries ) ;
 
-   float ymin = pow( 10, -2.3 ) ;
-   float ymax = pow( 10, -0.2 ) ;
 
-   float q2min = 1e2 ;
-   float q2max = 1e4 ;
+  //-- make edge bins contain a fraction grf of a bin width of the good range
+  //   That is, within the highest bin, grf * bw of that bin is within the good range and (1-grf)*bw is above the good range
+  //   Do this for the gen binning.
+  //
+  //   This seems to help the unfolding a lot.  It avoids bias in the edge bins and heavy correlations.
+  //
+
+   float grf = 0.2 ;
+
+   float good_range_log10_xmin = -2.5  ;
+   float good_range_log10_xmax = 0.0 ;
+
+   float good_range_log10_ymin = -2.3  ;
+   float good_range_log10_ymax = -0.2  ;
+
+   float good_range_log10_q2min = 2.342 ; // log10(220) = 2.342
+   float good_range_log10_q2max = 4 ;
+
+
+   float log10_xmin = 0.5 * ( good_range_log10_xmax + good_range_log10_xmin - ( good_range_log10_xmax - good_range_log10_xmin ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+   float log10_xmax = 0.5 * ( good_range_log10_xmax + good_range_log10_xmin + ( good_range_log10_xmax - good_range_log10_xmin ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+
+   float log10_ymin = 0.5 * ( good_range_log10_ymax + good_range_log10_ymin - ( good_range_log10_ymax - good_range_log10_ymin ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+   float log10_ymax = 0.5 * ( good_range_log10_ymax + good_range_log10_ymin + ( good_range_log10_ymax - good_range_log10_ymin ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+
+   float log10_q2min = 0.5 * ( good_range_log10_q2max + good_range_log10_q2min - ( good_range_log10_q2max - good_range_log10_q2min ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+   float log10_q2max = 0.5 * ( good_range_log10_q2max + good_range_log10_q2min + ( good_range_log10_q2max - good_range_log10_q2min ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
+
+
+   printf("   log10  x :  good range  ( %9.3f , %9.3f ) ,   full range ( %9.3f , %9.5f )\n",
+        good_range_log10_xmin  , good_range_log10_xmax  , log10_xmin, log10_xmax ) ;
+
+   printf("   log10  y :  good range  ( %9.3f , %9.3f ) ,   full range ( %9.3f , %9.5f )\n",
+        good_range_log10_ymin  , good_range_log10_ymax  , log10_ymin, log10_ymax ) ;
+
+   printf("   log10 q2 :  good range  ( %9.3f , %9.3f ) ,   full range ( %9.3f , %9.5f )\n",
+        good_range_log10_q2min  , good_range_log10_q2max  , log10_q2min, log10_q2max ) ;
+
 
 
 
@@ -47,10 +78,10 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
 
 
    TH2F* h_dummy_log10_q2_vs_log10_x_gen = new TH2F( "h_dummy_log10_q2_vs_log10_x_gen", "Gen Template for 2D unfolding, log10 Q2 vs log10 x",
-        nbins_gen, log10(xmin), log10(xmax),    nbins_gen, log10(q2min), log10(q2max) ) ;
+        nbins_gen, log10_xmin, log10_xmax,    nbins_gen, log10_q2min, log10_q2max ) ;
 
    TH2F* h_dummy_log10_q2_vs_log10_x_obs = new TH2F( "h_dummy_log10_q2_vs_log10_x_obs", "Obs Template for 2D unfolding, log10 Q2 vs log10 x",
-        nbins_obs, log10(xmin), log10(xmax),    nbins_obs, log10(q2min), log10(q2max) ) ;
+        nbins_obs, log10_xmin, log10_xmax,    nbins_obs, log10_q2min, log10_q2max ) ;
 
    RooUnfoldResponse* rur_2D_log10_q2_vs_log10_x_dnn = new RooUnfoldResponse( h_dummy_log10_q2_vs_log10_x_obs, h_dummy_log10_q2_vs_log10_x_gen,
          "rur_2D_log10_q2_vs_log10_x_dnn", "rur_2D_log10_q2_vs_log10_x_dnn" ) ;
@@ -66,38 +97,40 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
 
 
 
-   RooUnfoldResponse* rur_log10_q2_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10(q2min), log10(q2max), nbins_gen, log10(q2min), log10(q2max), "rur_log10_q2_gen_vs_obs_dnn", "rur_log10_q2_gen_vs_obs_dnn" ) ;
+   RooUnfoldResponse* rur_log10_q2_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10_q2min, log10_q2max, nbins_gen, log10_q2min, log10_q2max, "rur_log10_q2_gen_vs_obs_dnn", "rur_log10_q2_gen_vs_obs_dnn" ) ;
 
 
-   TH2F* h_log10_q2_gen_vs_obs_dnn    = new TH2F( "h_log10_q2_gen_vs_obs_dnn", "h_log10_q2_gen_vs_obs_dnn", nbins_obs, log10(q2min), log10(q2max),   nbins_gen, log10(q2min), log10(q2max) ) ;
-   TH2F* h_log10_q2_gen_vs_obs_e      = new TH2F( "h_log10_q2_gen_vs_obs_e", "h_log10_q2_gen_vs_obs_e", nbins_obs, log10(q2min), log10(q2max),   nbins_gen, log10(q2min), log10(q2max) ) ;
-   TH2F* h_log10_q2_gen_vs_obs_isigma = new TH2F( "h_log10_q2_gen_vs_obs_isigma", "h_log10_q2_gen_vs_obs_isigma", nbins_obs, log10(q2min), log10(q2max),   nbins_gen, log10(q2min), log10(q2max) ) ;
-   TH2F* h_log10_q2_gen_vs_obs_da     = new TH2F( "h_log10_q2_gen_vs_obs_da", "h_log10_q2_gen_vs_obs_da", nbins_obs, log10(q2min), log10(q2max),   nbins_gen, log10(q2min), log10(q2max) ) ;
+   TH2F* h_log10_q2_gen_vs_obs_dnn    = new TH2F( "h_log10_q2_gen_vs_obs_dnn", "h_log10_q2_gen_vs_obs_dnn", nbins_obs, log10_q2min, log10_q2max,   nbins_gen, log10_q2min, log10_q2max ) ;
+   TH2F* h_log10_q2_gen_vs_obs_e      = new TH2F( "h_log10_q2_gen_vs_obs_e", "h_log10_q2_gen_vs_obs_e", nbins_obs, log10_q2min, log10_q2max,   nbins_gen, log10_q2min, log10_q2max ) ;
+   TH2F* h_log10_q2_gen_vs_obs_isigma = new TH2F( "h_log10_q2_gen_vs_obs_isigma", "h_log10_q2_gen_vs_obs_isigma", nbins_obs, log10_q2min, log10_q2max,   nbins_gen, log10_q2min, log10_q2max ) ;
+   TH2F* h_log10_q2_gen_vs_obs_da     = new TH2F( "h_log10_q2_gen_vs_obs_da", "h_log10_q2_gen_vs_obs_da", nbins_obs, log10_q2min, log10_q2max,   nbins_gen, log10_q2min, log10_q2max ) ;
 
 
-   TH2F* h_log10_x_gen_vs_obs_dnn    = new TH2F( "h_log10_x_gen_vs_obs_dnn", "h_log10_x_gen_vs_obs_dnn", nbins_obs, log10(xmin), log10(xmax),   nbins_gen, log10(xmin), log10(xmax) ) ;
-   TH2F* h_log10_x_gen_vs_obs_e      = new TH2F( "h_log10_x_gen_vs_obs_e", "h_log10_x_gen_vs_obs_e", nbins_obs, log10(xmin), log10(xmax),   nbins_gen, log10(xmin), log10(xmax) ) ;
-   TH2F* h_log10_x_gen_vs_obs_isigma = new TH2F( "h_log10_x_gen_vs_obs_isigma", "h_log10_x_gen_vs_obs_isigma", nbins_obs, log10(xmin), log10(xmax),   nbins_gen, log10(xmin), log10(xmax) ) ;
-   TH2F* h_log10_x_gen_vs_obs_da     = new TH2F( "h_log10_x_gen_vs_obs_da", "h_log10_x_gen_vs_obs_da", nbins_obs, log10(xmin), log10(xmax),   nbins_gen, log10(xmin), log10(xmax) ) ;
+   TH2F* h_log10_x_gen_vs_obs_dnn    = new TH2F( "h_log10_x_gen_vs_obs_dnn", "h_log10_x_gen_vs_obs_dnn", nbins_obs, log10_xmin, log10_xmax,   nbins_gen, log10_xmin, log10_xmax ) ;
+   TH2F* h_log10_x_gen_vs_obs_e      = new TH2F( "h_log10_x_gen_vs_obs_e", "h_log10_x_gen_vs_obs_e", nbins_obs, log10_xmin, log10_xmax,   nbins_gen, log10_xmin, log10_xmax ) ;
+   TH2F* h_log10_x_gen_vs_obs_isigma = new TH2F( "h_log10_x_gen_vs_obs_isigma", "h_log10_x_gen_vs_obs_isigma", nbins_obs, log10_xmin, log10_xmax,   nbins_gen, log10_xmin, log10_xmax ) ;
+   TH2F* h_log10_x_gen_vs_obs_da     = new TH2F( "h_log10_x_gen_vs_obs_da", "h_log10_x_gen_vs_obs_da", nbins_obs, log10_xmin, log10_xmax,   nbins_gen, log10_xmin, log10_xmax ) ;
 
-   RooUnfoldResponse* rur_log10_x_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10(xmin), log10(xmax),  nbins_gen, log10(xmin), log10(xmax),  "rur_log10_x_gen_vs_obs_dnn", "rur_log10_x_gen_vs_obs_dnn" ) ;
-   RooUnfoldResponse* rur_log10_x_gen_vs_obs_e = new RooUnfoldResponse( nbins_obs, log10(xmin), log10(xmax),  nbins_gen, log10(xmin), log10(xmax),  "rur_log10_x_gen_vs_obs_e", "rur_log10_x_gen_vs_obs_e" ) ;
-   RooUnfoldResponse* rur_log10_x_gen_vs_obs_isigma = new RooUnfoldResponse( nbins_obs, log10(xmin), log10(xmax),  nbins_gen, log10(xmin), log10(xmax),  "rur_log10_x_gen_vs_obs_isigma", "rur_log10_x_gen_vs_obs_isigma" ) ;
-   RooUnfoldResponse* rur_log10_x_gen_vs_obs_da = new RooUnfoldResponse( nbins_obs, log10(xmin), log10(xmax),  nbins_gen, log10(xmin), log10(xmax),  "rur_log10_x_gen_vs_obs_da", "rur_log10_x_gen_vs_obs_da" ) ;
-
-
-
-   TH2F* h_log10_y_gen_vs_obs_dnn    = new TH2F( "h_log10_y_gen_vs_obs_dnn", "h_log10_y_gen_vs_obs_dnn", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
-   TH2F* h_log10_y_gen_vs_obs_e      = new TH2F( "h_log10_y_gen_vs_obs_e", "h_log10_y_gen_vs_obs_e", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
-   TH2F* h_log10_y_gen_vs_obs_isigma = new TH2F( "h_log10_y_gen_vs_obs_isigma", "h_log10_y_gen_vs_obs_isigma", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
-   TH2F* h_log10_y_gen_vs_obs_da     = new TH2F( "h_log10_y_gen_vs_obs_da", "h_log10_y_gen_vs_obs_da", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
-
-   RooUnfoldResponse* rur_log10_y_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10(ymin), log10(ymax),  nbins_gen, log10(ymin), log10(ymax),  "rur_log10_y_gen_vs_obs_dnn", "rur_log10_y_gen_vs_obs_dnn" ) ;
-   RooUnfoldResponse* rur_log10_y_gen_vs_obs_e = new RooUnfoldResponse( nbins_obs, log10(ymin), log10(ymax),  nbins_gen, log10(ymin), log10(ymax),  "rur_log10_y_gen_vs_obs_e", "rur_log10_y_gen_vs_obs_e" ) ;
-   RooUnfoldResponse* rur_log10_y_gen_vs_obs_isigma = new RooUnfoldResponse( nbins_obs, log10(ymin), log10(ymax),  nbins_gen, log10(ymin), log10(ymax),  "rur_log10_y_gen_vs_obs_isigma", "rur_log10_y_gen_vs_obs_isigma" ) ;
-   RooUnfoldResponse* rur_log10_y_gen_vs_obs_da = new RooUnfoldResponse( nbins_obs, log10(ymin), log10(ymax),  nbins_gen, log10(ymin), log10(ymax),  "rur_log10_y_gen_vs_obs_da", "rur_log10_y_gen_vs_obs_da" ) ;
+   RooUnfoldResponse* rur_log10_x_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10_xmin, log10_xmax,  nbins_gen, log10_xmin, log10_xmax,  "rur_log10_x_gen_vs_obs_dnn", "rur_log10_x_gen_vs_obs_dnn" ) ;
+   RooUnfoldResponse* rur_log10_x_gen_vs_obs_e = new RooUnfoldResponse( nbins_obs, log10_xmin, log10_xmax,  nbins_gen, log10_xmin, log10_xmax,  "rur_log10_x_gen_vs_obs_e", "rur_log10_x_gen_vs_obs_e" ) ;
+   RooUnfoldResponse* rur_log10_x_gen_vs_obs_isigma = new RooUnfoldResponse( nbins_obs, log10_xmin, log10_xmax,  nbins_gen, log10_xmin, log10_xmax,  "rur_log10_x_gen_vs_obs_isigma", "rur_log10_x_gen_vs_obs_isigma" ) ;
+   RooUnfoldResponse* rur_log10_x_gen_vs_obs_da = new RooUnfoldResponse( nbins_obs, log10_xmin, log10_xmax,  nbins_gen, log10_xmin, log10_xmax,  "rur_log10_x_gen_vs_obs_da", "rur_log10_x_gen_vs_obs_da" ) ;
 
 
+
+   TH2F* h_log10_y_gen_vs_obs_dnn    = new TH2F( "h_log10_y_gen_vs_obs_dnn", "h_log10_y_gen_vs_obs_dnn", nbins_obs, log10_ymin, log10_ymax,   nbins_gen, log10_ymin, log10_ymax ) ;
+   TH2F* h_log10_y_gen_vs_obs_e      = new TH2F( "h_log10_y_gen_vs_obs_e", "h_log10_y_gen_vs_obs_e", nbins_obs, log10_ymin, log10_ymax,   nbins_gen, log10_ymin, log10_ymax ) ;
+   TH2F* h_log10_y_gen_vs_obs_isigma = new TH2F( "h_log10_y_gen_vs_obs_isigma", "h_log10_y_gen_vs_obs_isigma", nbins_obs, log10_ymin, log10_ymax,   nbins_gen, log10_ymin, log10_ymax ) ;
+   TH2F* h_log10_y_gen_vs_obs_da     = new TH2F( "h_log10_y_gen_vs_obs_da", "h_log10_y_gen_vs_obs_da", nbins_obs, log10_ymin, log10_ymax,   nbins_gen, log10_ymin, log10_ymax ) ;
+
+   RooUnfoldResponse* rur_log10_y_gen_vs_obs_dnn = new RooUnfoldResponse( nbins_obs, log10_ymin, log10_ymax,  nbins_gen, log10_ymin, log10_ymax,  "rur_log10_y_gen_vs_obs_dnn", "rur_log10_y_gen_vs_obs_dnn" ) ;
+   RooUnfoldResponse* rur_log10_y_gen_vs_obs_e = new RooUnfoldResponse( nbins_obs, log10_ymin, log10_ymax,  nbins_gen, log10_ymin, log10_ymax,  "rur_log10_y_gen_vs_obs_e", "rur_log10_y_gen_vs_obs_e" ) ;
+   RooUnfoldResponse* rur_log10_y_gen_vs_obs_isigma = new RooUnfoldResponse( nbins_obs, log10_ymin, log10_ymax,  nbins_gen, log10_ymin, log10_ymax,  "rur_log10_y_gen_vs_obs_isigma", "rur_log10_y_gen_vs_obs_isigma" ) ;
+   RooUnfoldResponse* rur_log10_y_gen_vs_obs_da = new RooUnfoldResponse( nbins_obs, log10_ymin, log10_ymax,  nbins_gen, log10_ymin, log10_ymax,  "rur_log10_y_gen_vs_obs_da", "rur_log10_y_gen_vs_obs_da" ) ;
+
+
+   float xmin = pow( 10, log10_xmin ) ;
+   float xmax = pow( 10, log10_xmax ) ;
 
    TH2F* h_x_gen_vs_obs_dnn    = new TH2F( "h_x_gen_vs_obs_dnn", "h_x_gen_vs_obs_dnn", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
    TH2F* h_x_gen_vs_obs_e      = new TH2F( "h_x_gen_vs_obs_e", "h_x_gen_vs_obs_e", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;

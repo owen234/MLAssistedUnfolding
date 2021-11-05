@@ -240,9 +240,9 @@ TH1F* trim_unused_bins( TH1F* hp, RooUnfoldResponse* rur ) {
 
 
 
-      printf("\n\n Unfolding results for A:\n") ;
-      unfold_a -> PrintTable( cout ) ;
-      printf("\n\n") ;
+   ///printf("\n\n Unfolding results for A:\n") ;
+   ///unfold_a -> PrintTable( cout ) ;
+   ///printf("\n\n") ;
 
       TMatrixD unfolding_cov_mat_a = unfold_a -> Ereco() ;
 
@@ -258,9 +258,9 @@ TH1F* trim_unused_bins( TH1F* hp, RooUnfoldResponse* rur ) {
 
 
 
-      printf("\n\n Unfolding results for B:\n") ;
-      unfold_b -> PrintTable( cout ) ;
-      printf("\n\n") ;
+   ///printf("\n\n Unfolding results for B:\n") ;
+   ///unfold_b -> PrintTable( cout ) ;
+   ///printf("\n\n") ;
 
       TMatrixD unfolding_cov_mat_b = unfold_b -> Ereco() ;
 
@@ -371,9 +371,11 @@ TH1F* trim_unused_bins( TH1F* hp, RooUnfoldResponse* rur ) {
 
 
       TH1* h_gen_compare_a = (TH1*) h_gen_source_a -> Clone( "h_gen_compare_a" ) ;
+      //////h_gen_compare_a -> Scale( ngen /( h_gen_source_a -> Integral() ) ) ;
       h_gen_compare_a -> Scale( ( hReco_a -> Integral() )/( h_gen_source_a -> Integral() ) ) ;
 
       TH1* h_gen_compare_b = (TH1*) h_gen_source_b -> Clone( "h_gen_compare_b" ) ;
+      /////h_gen_compare_b -> Scale( ngen /( h_gen_source_b -> Integral() ) ) ;
       h_gen_compare_b -> Scale( ( hReco_b -> Integral() )/( h_gen_source_b -> Integral() ) ) ;
 
 

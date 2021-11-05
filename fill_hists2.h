@@ -180,7 +180,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop( int nbins_gen=20, int nbins_obs=50, bool verbose=false, int last_event=-1, int first_event=0, const char* out_file = "" );
+   virtual void     Loop( int nbins_gen=10, int nbins_obs=20, bool verbose=false, int last_event=-1, int first_event=0, const char* out_file = "" );
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
