@@ -61,6 +61,7 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    float log10_q2min = 0.5 * ( good_range_log10_q2max + good_range_log10_q2min - ( good_range_log10_q2max - good_range_log10_q2min ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
    float log10_q2max = 0.5 * ( good_range_log10_q2max + good_range_log10_q2min + ( good_range_log10_q2max - good_range_log10_q2min ) / ( 1. - 2.*(1.-grf)/(1.*nbins_gen) ) ) ;
 
+   printf("\n\n") ;
 
    printf("   log10  x :  good range  ( %9.3f , %9.3f ) ,   full range ( %9.3f , %9.5f )\n",
         good_range_log10_xmin  , good_range_log10_xmax  , log10_xmin, log10_xmax ) ;
@@ -71,6 +72,7 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    printf("   log10 q2 :  good range  ( %9.3f , %9.3f ) ,   full range ( %9.3f , %9.5f )\n",
         good_range_log10_q2min  , good_range_log10_q2max  , log10_q2min, log10_q2max ) ;
 
+   printf("\n\n") ;
 
 
 
