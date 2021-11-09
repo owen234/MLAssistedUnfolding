@@ -273,8 +273,8 @@ TH2F* get_hist( const char* hname ) {
       if ( fabs( h_diff_b_with_a -> GetMinimum() ) > max_abs_diff ) max_abs_diff = fabs( h_diff_b_with_a -> GetMinimum() ) ;
       if ( fabs( h_diff_b_with_b -> GetMinimum() ) > max_abs_diff ) max_abs_diff = fabs( h_diff_b_with_b -> GetMinimum() ) ;
 
-      /////if ( diff_max > 0 && diff_max > max_abs_diff ) max_abs_diff = diff_max ;
-      max_abs_diff = diff_max ;
+      if ( diff_max > 0 && diff_max > max_abs_diff ) max_abs_diff = diff_max ;
+      //max_abs_diff = diff_max ;
 
       h_diff_a_with_a -> SetMaximum( 1.1 * max_abs_diff ) ;
       h_diff_a_with_b -> SetMaximum( 1.1 * max_abs_diff ) ;

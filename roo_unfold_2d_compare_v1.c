@@ -338,13 +338,17 @@ TH1F* trim_unused_bins( TH1F* hp, RooUnfoldResponse* rur ) {
             float rho = 1. ;
             float err_i, err_j ;
 
-            err_i = sqrt( unfolding_cov_mat_a[ri][ri] ) ;
-            err_j = sqrt( unfolding_cov_mat_a[ci][ci] ) ;
+            err_i = 1. ;
+            err_j = 1. ;
+            if ( unfolding_cov_mat_a[ri][ri] > 0 ) err_i = sqrt( unfolding_cov_mat_a[ri][ri] ) ;
+            if ( unfolding_cov_mat_a[ci][ci] > 0 ) err_j = sqrt( unfolding_cov_mat_a[ci][ci] ) ;
             if ( err_i > 0 && err_j > 0 ) rho = unfolding_cov_mat_a[ri][ci] / ( err_i * err_j ) ;
             h_unfold_cor_mat_a -> SetBinContent( rbi, cbi, rho ) ;
 
-            err_i = sqrt( unfolding_cov_mat_b[ri][ri] ) ;
-            err_j = sqrt( unfolding_cov_mat_b[ci][ci] ) ;
+            err_i = 1. ;
+            err_j = 1. ;
+            if ( unfolding_cov_mat_b[ri][ri] > 0 ) err_i = sqrt( unfolding_cov_mat_b[ri][ri] ) ;
+            if ( unfolding_cov_mat_b[ci][ci] > 0 ) err_j = sqrt( unfolding_cov_mat_b[ci][ci] ) ;
             if ( err_i > 0 && err_j > 0 ) rho = unfolding_cov_mat_b[ri][ci] / ( err_i * err_j ) ;
             h_unfold_cor_mat_b -> SetBinContent( rbi, cbi, rho ) ;
 
@@ -352,13 +356,17 @@ TH1F* trim_unused_bins( TH1F* hp, RooUnfoldResponse* rur ) {
 
          float global_rho_a = 1. ;
          if ( unfolding_cov_mat_a[ri][ri] != 0 && unfolding_inverse_cov_mat_a[ri][ri] != 0 ) {
-            global_rho_a = sqrt( 1. - 1. / ( unfolding_cov_mat_a[ri][ri] * unfolding_inverse_cov_mat_a[ri][ri] ) ) ;
+            global_rho_a = 0. ;
+            float sqrt_arg = 1. - 1. / ( unfolding_cov_mat_a[ri][ri] * unfolding_inverse_cov_mat_a[ri][ri] ) ;
+            if ( sqrt_arg > 0 ) global_rho_a = sqrt( sqrt_arg ) ;
          }
          h_global_correlation_coeff_a -> SetBinContent( rbi, global_rho_a ) ;
 
          float global_rho_b = 1. ;
          if ( unfolding_cov_mat_b[ri][ri] != 0 && unfolding_inverse_cov_mat_b[ri][ri] != 0 ) {
-            global_rho_b = sqrt( 1. - 1. / ( unfolding_cov_mat_b[ri][ri] * unfolding_inverse_cov_mat_b[ri][ri] ) ) ;
+            global_rho_b = 0. ;
+            float sqrt_arg = 1. - 1. / ( unfolding_cov_mat_b[ri][ri] * unfolding_inverse_cov_mat_b[ri][ri] ) ;
+            if ( sqrt_arg > 0 ) global_rho_b = sqrt( sqrt_arg ) ;
          }
          h_global_correlation_coeff_b -> SetBinContent( rbi, global_rho_b ) ;
 
