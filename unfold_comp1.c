@@ -14,6 +14,31 @@ TH2F* get_hist( const char* hname ) {
    return hp ;
 }
 
+void SetupCorrelationPalette() {
+
+      static Bool_t initialized = kFALSE ;
+      static Int_t colors[90] ;
+
+      const Int_t Number = 3 ;
+      Double_t Length[Number] = {0.,0.5, 1.} ;
+      Double_t Red[Number] = {0.,1.,1.} ;
+      Double_t Green[Number] = {0.,1.,0.} ;
+      Double_t Blue[Number] = {1.,1.,0.} ;
+
+      if ( !initialized ) {
+         Int_t fi = TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,90);
+         for ( int i=0; i<90; i++ ) colors[i] = fi+i ;
+         initialized = kTRUE ;
+         return ;
+      }
+      gStyle -> SetPalette( 90, colors ) ;
+
+}
+
+void Setup2DhistPalette() {
+      gStyle -> SetPalette( kBird ) ;
+}
+
 //----------
 
    void unfold_comp1( const char* hist_name_a = "h_log10_x_gen_vs_obs_dnn",
@@ -312,12 +337,15 @@ TH2F* get_hist( const char* hname ) {
       histRhoi_a->SetMaximum(1.1) ;
       histRhoi_b->SetMaximum(1.1) ;
 
+      TExec* change_hist_palette = new TExec( "change_hist_palette", "Setup2DhistPalette();" );
+      TExec* change_cor_palette = new TExec( "change_cor_palette", "SetupCorrelationPalette();" );
+
       TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "can1" ) ;
-      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 1300, 1100 ) ;
+      if ( can1 == 0x0 ) can1 = new TCanvas( "can1", "", 50, 50, 1800, 1100 ) ;
       can1 -> Clear() ;
       can1 -> cd() ;
 
-      can1 -> Divide(4,3) ;
+      can1 -> Divide(5,3) ;
 
       int ci(1) ;
 
@@ -326,6 +354,8 @@ TH2F* get_hist( const char* hname ) {
 
       can1 -> cd(ci++) ;
       h_in_gen_vs_obs_a -> Draw("colz") ;
+      change_hist_palette -> Draw() ;
+      h_in_gen_vs_obs_a -> Draw("colz same") ;
 
       can1 -> cd(ci++) ;
       histMunfold_a -> Draw() ;
@@ -337,11 +367,20 @@ TH2F* get_hist( const char* hname ) {
 
       can1 -> cd(ci++) ;
       histEmatTotal_a -> Draw("colz") ;
+      change_hist_palette -> Draw() ;
+      histEmatTotal_a -> Draw("colz same") ;
+
+      can1 -> cd(ci++) ;
+      correlation_matrix_a -> Draw( "colz" ) ;
+      change_cor_palette -> Draw() ;
+      correlation_matrix_a -> Draw( "colz same" ) ;
 
      //-----
 
       can1 -> cd(ci++) ;
       h_in_gen_vs_obs_b -> Draw("colz") ;
+      change_hist_palette -> Draw() ;
+      h_in_gen_vs_obs_b -> Draw("colz same") ;
 
       can1 -> cd(ci++) ;
       histMunfold_b -> Draw() ;
@@ -353,6 +392,13 @@ TH2F* get_hist( const char* hname ) {
 
       can1 -> cd(ci++) ;
       histEmatTotal_b -> Draw("colz") ;
+      change_hist_palette -> Draw() ;
+      histEmatTotal_b -> Draw("colz same") ;
+
+      can1 -> cd(ci++) ;
+      correlation_matrix_b -> Draw( "colz" ) ;
+      change_cor_palette -> Draw() ;
+      correlation_matrix_b -> Draw( "colz same" ) ;
 
      //-----
 
@@ -384,65 +430,6 @@ TH2F* get_hist( const char* hname ) {
 
 
 
-     //-----
-
-      TCanvas* can2 = (TCanvas*) gDirectory -> FindObject( "can2" ) ;
-      if ( can2 == 0x0 ) can2 = new TCanvas( "can2", "", 1350, 50, 330, 730 ) ;
-      can2 -> Clear() ;
-      can2 -> cd() ;
-      can2 -> Divide(1,2) ;
-
-        Int_t nb = 90 ;
-
-        const Int_t Number = 3 ;
-        Double_t Length[Number] = {0.,0.5, 1.} ;
-        Double_t Red[Number] = {0.,1.,1.} ;
-        Double_t Green[Number] = {0.,1.,0.} ;
-        Double_t Blue[Number] = {1.,1.,0.} ;
-        TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
-
-      correlation_matrix_a -> SetContour( nb ) ;
-      correlation_matrix_b -> SetContour( nb ) ;
-
-      ci = 1 ;
-
-      can2 -> cd(ci++) ;
-      correlation_matrix_a -> Draw( "colz" ) ;
-
-      can2 -> cd(ci++) ;
-      correlation_matrix_b -> Draw( "colz" ) ;
-
-
-
-     //-----
-
- ///  TCanvas* can3 = (TCanvas*) gDirectory -> FindObject( "can3" ) ;
- ///  if ( can3 == 0x0 ) can3 = new TCanvas( "can3", "", 1730, 50, 500, 800 ) ;
-
- ///  can3 -> Clear() ;
- ///  can3 -> cd() ;
- ///  can3 -> Divide(2,3) ;
-
- ///  ci = 1 ;
-
- ///  can3 -> cd(ci++) ;
- ///  lCurve_a -> Draw() ;
-
- ///  can3 -> cd(ci++) ;
- ///  lCurve_b -> Draw() ;
-
- ///  can3 -> cd(ci++) ;
- ///  logTauX_a -> Draw() ;
-
- ///  can3 -> cd(ci++) ;
- ///  logTauX_b -> Draw() ;
-
-
- ///  can3 -> cd(ci++) ;
- ///  logTauY_a -> Draw() ;
-
- ///  can3 -> cd(ci++) ;
- ///  logTauY_b -> Draw() ;
 
 
 
