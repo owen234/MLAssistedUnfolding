@@ -3,7 +3,7 @@
 #include "paper_plots_dis_compare3.c"
 
    void run_paper_plots_dis(
-            const char* input_file = "example-input-nbins_gen010_obs020.root",
+            const char* input_file = "paper-plots-input-1D-nbins_gen010_obs020.root",
             int nevts = 100000
           ) {
 
