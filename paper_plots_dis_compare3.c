@@ -51,7 +51,8 @@ void Setup2DhistPalette() {
                       const char* hist_name_c = "h_log10_x_gen_vs_obs_e",
                       const char* var_name = "x",
                       int ngen = 1e5,
-                      const char* input_file = "example-input-nbins_gen010_obs020.root"
+                      const char* input_file = "paper-plots-input-1D-nbins_gen010_obs020.root",
+                      float max_error = -1.
                       ) {
 
       char fname[1000] ;
@@ -59,6 +60,7 @@ void Setup2DhistPalette() {
       TRandom3* tran_a = new TRandom3(1249) ;
       TRandom3* tran_b = new TRandom3(1249) ;
       TRandom3* tran_c = new TRandom3(1249) ;
+
 
       gDirectory -> Delete( "h*" ) ;
       gStyle -> SetPalette( kBird ) ;
@@ -599,6 +601,8 @@ void Setup2DhistPalette() {
 
       if ( strcmp( var_name, "x" ) == 0 ) { h_unfold_err_c -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_c -> SetXTitle( "log10(y)" ) ; }
+
+      if ( max_error > 0 ) h_unfold_err_c -> SetMaximum( max_error ) ;
 
       h_unfold_err_c -> Draw("hist") ;
       h_unfold_err_b -> Draw("hist same") ;

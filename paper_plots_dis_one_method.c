@@ -420,9 +420,9 @@ void Setup2DhistPalette() {
       can4 -> Update() ; can4 -> Draw() ; gSystem -> ProcessEvents() ;
 
       sprintf( fname, "paper-plots/dis-normalized-response-%s-%s.pdf", var_name, method_name ) ;
-      can1 -> SaveAs( fname ) ;
+      can4 -> SaveAs( fname ) ;
       sprintf( fname, "paper-plots/dis-normalized-response-%s-%s.png", var_name, method_name ) ;
-      can1 -> SaveAs( fname ) ;
+      can4 -> SaveAs( fname ) ;
 
 
      //-----
