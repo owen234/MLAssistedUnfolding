@@ -40,7 +40,8 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
   //   This seems to help the unfolding a lot.  It avoids bias in the edge bins and heavy correlations.
   //
 
-   float grf = 0.2 ;
+   //float grf = 0.2 ;
+   float grf = 1.0 ; // no edge buffer bin
 
    float good_range_log10_xmin = -2.5  ;
    float good_range_log10_xmax = 0.0 ;
@@ -154,11 +155,11 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    h_log10_q2_gen_vs_obs_isigma -> SetXTitle( "Obs log10(Q2), eSigma" ) ;
    h_log10_q2_gen_vs_obs_da     -> SetXTitle( "Obs log10(Q2), DA" ) ;
 
-   h_log10_q2_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(Q2), DNN" ) ;
-   h_log10_q2_gen_vs_obs_e      -> SetYTitle( "Gen log10(Q2), e" ) ;
-   h_log10_q2_gen_vs_obs_isigma -> SetYTitle( "Gen log10(Q2), ISigma" ) ;
-   h_log10_q2_gen_vs_obs_esigma -> SetYTitle( "Gen log10(Q2), eSigma" ) ;
-   h_log10_q2_gen_vs_obs_da     -> SetYTitle( "Gen log10(Q2), DA" ) ;
+   h_log10_q2_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(Q2)" ) ;
+   h_log10_q2_gen_vs_obs_e      -> SetYTitle( "Gen log10(Q2)" ) ;
+   h_log10_q2_gen_vs_obs_isigma -> SetYTitle( "Gen log10(Q2)" ) ;
+   h_log10_q2_gen_vs_obs_esigma -> SetYTitle( "Gen log10(Q2)" ) ;
+   h_log10_q2_gen_vs_obs_da     -> SetYTitle( "Gen log10(Q2)" ) ;
 
 
    h_log10_x_gen_vs_obs_dnn    -> SetXTitle( "Obs log10(x), DNN" ) ;
@@ -167,11 +168,11 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    h_log10_x_gen_vs_obs_esigma -> SetXTitle( "Obs log10(x), eSigma" ) ;
    h_log10_x_gen_vs_obs_da     -> SetXTitle( "Obs log10(x), DA" ) ;
 
-   h_log10_x_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(x), DNN" ) ;
-   h_log10_x_gen_vs_obs_e      -> SetYTitle( "Gen log10(x), e" ) ;
-   h_log10_x_gen_vs_obs_isigma -> SetYTitle( "Gen log10(x), ISigma" ) ;
-   h_log10_x_gen_vs_obs_esigma -> SetYTitle( "Gen log10(x), eSigma" ) ;
-   h_log10_x_gen_vs_obs_da     -> SetYTitle( "Gen log10(x), DA" ) ;
+   h_log10_x_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(x)" ) ;
+   h_log10_x_gen_vs_obs_e      -> SetYTitle( "Gen log10(x)" ) ;
+   h_log10_x_gen_vs_obs_isigma -> SetYTitle( "Gen log10(x)" ) ;
+   h_log10_x_gen_vs_obs_esigma -> SetYTitle( "Gen log10(x)" ) ;
+   h_log10_x_gen_vs_obs_da     -> SetYTitle( "Gen log10(x)" ) ;
 
 
    h_log10_y_gen_vs_obs_dnn    -> SetXTitle( "Obs log10(y), DNN" ) ;
@@ -180,11 +181,11 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    h_log10_y_gen_vs_obs_esigma -> SetXTitle( "Obs log10(y), eSigma" ) ;
    h_log10_y_gen_vs_obs_da     -> SetXTitle( "Obs log10(y), DA" ) ;
 
-   h_log10_y_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(y), DNN" ) ;
-   h_log10_y_gen_vs_obs_e      -> SetYTitle( "Gen log10(y), e" ) ;
-   h_log10_y_gen_vs_obs_isigma -> SetYTitle( "Gen log10(y), ISigma" ) ;
-   h_log10_y_gen_vs_obs_esigma -> SetYTitle( "Gen log10(y), eSigma" ) ;
-   h_log10_y_gen_vs_obs_da     -> SetYTitle( "Gen log10(y), DA" ) ;
+   h_log10_y_gen_vs_obs_dnn    -> SetYTitle( "Gen log10(y)" ) ;
+   h_log10_y_gen_vs_obs_e      -> SetYTitle( "Gen log10(y)" ) ;
+   h_log10_y_gen_vs_obs_isigma -> SetYTitle( "Gen log10(y)" ) ;
+   h_log10_y_gen_vs_obs_esigma -> SetYTitle( "Gen log10(y)" ) ;
+   h_log10_y_gen_vs_obs_da     -> SetYTitle( "Gen log10(y)" ) ;
 
 
    h_x_gen_vs_obs_dnn    -> SetXTitle( "Obs x, DNN" ) ;
@@ -193,11 +194,11 @@ void fill_hists2::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_eve
    h_x_gen_vs_obs_esigma -> SetXTitle( "Obs x, eSigma" ) ;
    h_x_gen_vs_obs_da     -> SetXTitle( "Obs x, DA" ) ;
 
-   h_x_gen_vs_obs_dnn    -> SetYTitle( "Gen x, DNN" ) ;
-   h_x_gen_vs_obs_e      -> SetYTitle( "Gen x, e" ) ;
-   h_x_gen_vs_obs_isigma -> SetYTitle( "Gen x, ISigma" ) ;
-   h_x_gen_vs_obs_esigma -> SetYTitle( "Gen x, eSigma" ) ;
-   h_x_gen_vs_obs_da     -> SetYTitle( "Gen x, DA" ) ;
+   h_x_gen_vs_obs_dnn    -> SetYTitle( "Gen x" ) ;
+   h_x_gen_vs_obs_e      -> SetYTitle( "Gen x" ) ;
+   h_x_gen_vs_obs_isigma -> SetYTitle( "Gen x" ) ;
+   h_x_gen_vs_obs_esigma -> SetYTitle( "Gen x" ) ;
+   h_x_gen_vs_obs_da     -> SetYTitle( "Gen x" ) ;
 
 
 

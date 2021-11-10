@@ -80,6 +80,23 @@ void Setup2DhistPalette() {
       TH1* h_gen_source_a = h_in_gen_vs_obs_a -> ProjectionY( "h_gen_source_a" ) ;
 
 
+      TH2F* h_normalized_response = (TH2F*) h_in_gen_vs_obs_a -> Clone( "h_normalized_response" ) ;
+      for ( int ybi=1; ybi<=h_in_gen_vs_obs_a->GetNbinsX(); ybi++ ) {
+         float row_sum = 0. ;
+         for ( int xbi=1; xbi<=h_in_gen_vs_obs_a->GetNbinsX(); xbi++ ) {
+            row_sum += h_in_gen_vs_obs_a -> GetBinContent( xbi, ybi ) ;
+         } // xbi
+         for ( int xbi=1; xbi<=h_in_gen_vs_obs_a->GetNbinsX(); xbi++ ) {
+            if ( row_sum > 0 ) {
+               h_normalized_response -> SetBinContent( xbi, ybi, ( h_in_gen_vs_obs_a -> GetBinContent( xbi, ybi ) ) / row_sum ) ;
+               h_normalized_response -> SetBinError( xbi, ybi, 0. ) ;
+            } else {
+               h_normalized_response -> SetBinContent( xbi, ybi, 0. ) ;
+               h_normalized_response -> SetBinError( xbi, ybi, 0. ) ;
+            }
+         } // xbi
+      } // ybi
+
 
       TH1* h_obs_random_a = (TH1*) h_obs_source_a -> Clone( "h_obs_random_a" ) ;
       h_obs_random_a->Reset() ;
@@ -262,6 +279,16 @@ void Setup2DhistPalette() {
 
 
 
+      printf("\n\n") ;
+      printf(" Gen bin edges:\n") ;
+      for ( int bi=1; bi<=(histMunfold_a->GetNbinsX()+1); bi++ ) {
+         float lowEdgeLog10 = histMunfold_a->GetBinLowEdge( bi ) ;
+         float lowEdge = pow( 10., lowEdgeLog10 ) ;
+         printf(" %5.3f  (%7.5f) |", lowEdgeLog10, lowEdge ) ;
+      } // bi
+      printf("\n\n") ;
+
+
 
 
 
@@ -371,6 +398,32 @@ void Setup2DhistPalette() {
       can3 -> SaveAs( fname ) ;
       sprintf( fname, "paper-plots/dis-cormat-%s-%s.png", var_name, method_name ) ;
       can3 -> SaveAs( fname ) ;
+
+     //-----
+
+      TCanvas* can4 = (TCanvas*) gDirectory -> FindObject( "can4" ) ;
+      if ( can4 == 0x0 ) { printf( "Making can4\n") ; can4 = new TCanvas( "can4", "", 4*can_spacing + 3*can_width , can_spacing, can_width, can_height ) ; }
+      can4 -> Clear() ;
+      can4 -> cd() ;
+
+      h_normalized_response -> SetTitleOffset( 1.2, "x" ) ;
+      h_normalized_response -> SetTitleOffset( 1.6, "y" ) ;
+      sprintf( htitle, "Normalized response matrix, %s", method_name ) ;
+      h_normalized_response -> SetTitle( htitle ) ;
+
+      h_normalized_response -> Draw("colz") ;
+      TExec* change_hist_palette2 = new TExec( "change_hist_palette2", "Setup2DhistPalette();" );
+      change_hist_palette2->Draw() ;
+      h_normalized_response -> Draw("colz same") ;
+      h_normalized_response -> Draw("axis same") ;
+
+      can4 -> Update() ; can4 -> Draw() ; gSystem -> ProcessEvents() ;
+
+      sprintf( fname, "paper-plots/dis-normalized-response-%s-%s.pdf", var_name, method_name ) ;
+      can1 -> SaveAs( fname ) ;
+      sprintf( fname, "paper-plots/dis-normalized-response-%s-%s.png", var_name, method_name ) ;
+      can1 -> SaveAs( fname ) ;
+
 
      //-----
 
