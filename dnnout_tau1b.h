@@ -213,7 +213,7 @@ public :
    TBranch        *b_obs_kine_xida;   //!
    TBranch        *b_obs_kine_xe;   //!
 
-   dnnout_tau1b(const char* input_file_pattern);
+   dnnout_tau1b(const char* input_file_pattern = "dnn-output-h1-v2-Rapgap.root");
    virtual ~dnnout_tau1b();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -240,7 +240,7 @@ dnnout_tau1b::dnnout_tau1b(const char* input_file_pattern) : fChain(0)
    TTree* tree = chain;
    Init(tree);
 
-
+   Loop();
 // // if parameter tree is not specified (or zero), connect the file
 // // used to generate this class and read the Tree.
 //    if (tree == 0) {
