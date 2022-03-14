@@ -33,6 +33,18 @@ TH2F* get_hist( const char* hname ) {
       char htitle[100] ;
       char fname[1000] ;
 
+      TText* tt_title = new TText() ;
+      tt_title -> SetTextSize( 0.05 ) ;
+
+      float label_size = 0.050 ;
+      float title_size = 0.055 ;
+      float label_offset_y = 0.015 ;
+      float label_offset_x = 0.015 ;
+      float label_offset_z = 0.010 ;
+      float title_offset_x = 1.1 ;
+      float title_offset_y = 1.57 ;
+      float title_x = 0.05 ;
+      float title_y = 0.94 ;
       gSystem -> Exec( "mkdir -p paper-plots" ) ;
 
       char response_hname_base[100] ;
@@ -491,10 +503,10 @@ TH2F* get_hist( const char* hname ) {
          ///////h_diff_b_with_a[mi] -> SetYTitle( "Unfolded - Gen (events)" ) ;
          ///////h_diff_b_with_b[mi] -> SetYTitle( "Unfolded - Gen (events)" ) ;
 
-         h_diff_a_with_a[mi] -> SetYTitle( "(Unfolded - Gen)/Gen" ) ;
-         h_diff_a_with_b[mi] -> SetYTitle( "(Unfolded - Gen)/Gen" ) ;
-         h_diff_b_with_a[mi] -> SetYTitle( "(Unfolded - Gen)/Gen" ) ;
-         h_diff_b_with_b[mi] -> SetYTitle( "(Unfolded - Gen)/Gen" ) ;
+         h_diff_a_with_a[mi] -> SetYTitle( "(Unfolded - Gen) / Gen" ) ;
+         h_diff_a_with_b[mi] -> SetYTitle( "(Unfolded - Gen) / Gen" ) ;
+         h_diff_b_with_a[mi] -> SetYTitle( "(Unfolded - Gen) / Gen" ) ;
+         h_diff_b_with_b[mi] -> SetYTitle( "(Unfolded - Gen) / Gen" ) ;
 
          h_diff_a_with_a[mi] -> SetTitleOffset( 1.9, "y" ) ;
          h_diff_a_with_b[mi] -> SetTitleOffset( 1.9, "y" ) ;
@@ -531,8 +543,8 @@ TH2F* get_hist( const char* hname ) {
 
 
 
-      gStyle -> SetPadRightMargin(0.08) ;
-      gStyle -> SetPadLeftMargin(0.17) ;
+      gStyle -> SetPadRightMargin(0.04) ;
+      gStyle -> SetPadLeftMargin(0.18) ;
       gStyle -> SetPadBottomMargin(0.15) ;
       gStyle -> SetTitleBorderSize(0) ;
       gStyle -> SetTitleY(0.975) ;
@@ -559,13 +571,34 @@ TH2F* get_hist( const char* hname ) {
       can1 -> Clear() ;
       can1 -> cd() ;
 
+      h_diff_a_with_a[0] -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_diff_a_with_a[0] -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_diff_a_with_a[0] -> SetTitleSize( title_size, "x" ) ;
+      h_diff_a_with_a[0] -> SetTitleSize( title_size, "y" ) ;
+      h_diff_a_with_a[0] -> SetLabelSize( label_size, "x" ) ;
+      h_diff_a_with_a[0] -> SetLabelSize( label_size, "y" ) ;
+      h_diff_a_with_a[0] -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_diff_a_with_a[0] -> SetLabelOffset( label_offset_y, "y" ) ;
+
+
       h_diff_a_with_a[0] -> Draw("") ;
       h_diff_a_with_a[1] -> Draw("same") ;
       h_diff_a_with_a[2] -> Draw("same") ;
 
+      sprintf( htitle, "%s", h_diff_a_with_a[0] -> GetTitle() ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
+      h_diff_a_with_a[0] -> SetTitle("") ;
+
       gPad -> SetGridy(1) ;
 
-      lx = 0.65 ; ly = 0.73 ; lw = 0.24; lh = 0.15 ;
+      lx = 0.55 ; ly = 0.73 ; lw = 0.30; lh = 0.15 ;
+
+      if ( strcmp( var_name, "x" ) == 0 ) {
+         lx = 0.55 ; ly = 0.73 ; lw = 0.30; lh = 0.15 ;
+      } else {
+         lx = 0.55 ; ly = 0.18 ; lw = 0.30; lh = 0.15 ;
+      }
+
 
       TLegend* legend1 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
       legend1 -> AddEntry( h_diff_a_with_a[0], methods_title[0] ) ;
@@ -573,6 +606,7 @@ TH2F* get_hist( const char* hname ) {
       legend1 -> AddEntry( h_diff_a_with_a[2], methods_title[2] ) ;
 
       legend1 -> Draw() ;
+
 
       sprintf( fname, "paper-plots/dis-closure-%s.png", var_name ) ;
       can1 -> SaveAs( fname ) ;
@@ -599,17 +633,30 @@ TH2F* get_hist( const char* hname ) {
       h_diff_b_with_a[0] -> SetMarkerSize(1.5) ;
       h_diff_b_with_a[0] -> SetMarkerColor( method_lc[0] ) ;
 
+      h_diff_a_with_b[0] -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_diff_a_with_b[0] -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_diff_a_with_b[0] -> SetTitleSize( title_size, "x" ) ;
+      h_diff_a_with_b[0] -> SetTitleSize( title_size, "y" ) ;
+      h_diff_a_with_b[0] -> SetLabelSize( label_size, "x" ) ;
+      h_diff_a_with_b[0] -> SetLabelSize( label_size, "y" ) ;
+      h_diff_a_with_b[0] -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_diff_a_with_b[0] -> SetLabelOffset( label_offset_y, "y" ) ;
+
       h_diff_a_with_b[0] -> Draw("") ;
       h_diff_b_with_a[0] -> Draw("same") ;
       h_diff_a_with_b[0] -> Draw("hist same") ;
       h_diff_b_with_a[0] -> Draw("hist same") ;
 
+      sprintf( htitle, "%s", h_diff_a_with_b[0] -> GetTitle() ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
+      h_diff_a_with_b[0] -> SetTitle("") ;
+
       gPad -> SetGridy(1) ;
 
       if ( strcmp( var_name, "x" ) == 0 ) {
-         lx = 0.28 ; ly = 0.73 ; lw = 0.44; lh = 0.15 ;
+         lx = 0.21 ; ly = 0.73 ; lw = 0.50; lh = 0.15 ;
       } else {
-         lx = 0.52 ; ly = 0.73 ; lw = 0.44; lh = 0.15 ;
+         lx = 0.42 ; ly = 0.18 ; lw = 0.50; lh = 0.15 ;
       }
 
       TLegend* legend2 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
@@ -648,10 +695,23 @@ TH2F* get_hist( const char* hname ) {
       h_diff_b_with_a[1] -> SetMarkerSize(1.5) ;
       h_diff_b_with_a[1] -> SetMarkerColor( method_lc[1] ) ;
 
+      h_diff_a_with_b[1] -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_diff_a_with_b[1] -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_diff_a_with_b[1] -> SetTitleSize( title_size, "x" ) ;
+      h_diff_a_with_b[1] -> SetTitleSize( title_size, "y" ) ;
+      h_diff_a_with_b[1] -> SetLabelSize( label_size, "x" ) ;
+      h_diff_a_with_b[1] -> SetLabelSize( label_size, "y" ) ;
+      h_diff_a_with_b[1] -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_diff_a_with_b[1] -> SetLabelOffset( label_offset_y, "y" ) ;
+
       h_diff_a_with_b[1] -> Draw("") ;
       h_diff_b_with_a[1] -> Draw("same") ;
       h_diff_a_with_b[1] -> Draw("hist same") ;
       h_diff_b_with_a[1] -> Draw("hist same") ;
+
+      sprintf( htitle, "%s", h_diff_a_with_b[1] -> GetTitle() ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
+      h_diff_a_with_b[1] -> SetTitle("") ;
 
 
       gPad -> SetGridy(1) ;
@@ -693,10 +753,23 @@ TH2F* get_hist( const char* hname ) {
       h_diff_b_with_a[2] -> SetMarkerSize(1.5) ;
       h_diff_b_with_a[2] -> SetMarkerColor( method_lc[2] ) ;
 
+      h_diff_a_with_b[2] -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_diff_a_with_b[2] -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_diff_a_with_b[2] -> SetTitleSize( title_size, "x" ) ;
+      h_diff_a_with_b[2] -> SetTitleSize( title_size, "y" ) ;
+      h_diff_a_with_b[2] -> SetLabelSize( label_size, "x" ) ;
+      h_diff_a_with_b[2] -> SetLabelSize( label_size, "y" ) ;
+      h_diff_a_with_b[2] -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_diff_a_with_b[2] -> SetLabelOffset( label_offset_y, "y" ) ;
+
       h_diff_a_with_b[2] -> Draw("") ;
       h_diff_b_with_a[2] -> Draw("same") ;
       h_diff_a_with_b[2] -> Draw("hist same") ;
       h_diff_b_with_a[2] -> Draw("hist same") ;
+
+      sprintf( htitle, "%s", h_diff_a_with_b[2] -> GetTitle() ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
+      h_diff_a_with_b[2] -> SetTitle("") ;
 
 
       gPad -> SetGridy(1) ;

@@ -55,7 +55,21 @@ void Setup2DhistPalette() {
                       float max_error = -1.
                       ) {
 
+      char htitle[1000] ;
+      TText* tt_title = new TText() ;
+      tt_title -> SetTextSize( 0.05 ) ;
+
       char fname[1000] ;
+
+      float label_size = 0.050 ;
+      float title_size = 0.055 ;
+      float label_offset_y = 0.015 ;
+      float label_offset_x = 0.015 ;
+      float label_offset_z = 0.010 ;
+      float title_offset_x = 1.1 ;
+      float title_offset_y = 1.35 ;
+      float title_x = 0.05 ;
+      float title_y = 0.94 ;
 
       TRandom3* tran_a = new TRandom3(1249) ;
       TRandom3* tran_b = new TRandom3(1249) ;
@@ -455,7 +469,7 @@ void Setup2DhistPalette() {
 
 
       gStyle -> SetPadRightMargin(0.08) ;
-      gStyle -> SetPadLeftMargin(0.15) ;
+      gStyle -> SetPadLeftMargin(0.16) ;
       gStyle -> SetPadBottomMargin(0.15) ;
       gStyle -> SetTitleBorderSize(0) ;
       gStyle -> SetTitleY(0.975) ;
@@ -481,9 +495,9 @@ void Setup2DhistPalette() {
       histRhoi_b -> SetLineColor(4) ;
       histRhoi_c -> SetLineColor(2) ;
 
-      histRhoi_a -> SetLineWidth(3) ;
-      histRhoi_b -> SetLineWidth(3) ;
-      histRhoi_c -> SetLineWidth(3) ;
+      histRhoi_a -> SetLineWidth(4) ;
+      histRhoi_b -> SetLineWidth(4) ;
+      histRhoi_c -> SetLineWidth(4) ;
 
       histRhoi_a -> SetLineStyle(1) ;
       histRhoi_b -> SetLineStyle(9) ;
@@ -501,16 +515,34 @@ void Setup2DhistPalette() {
       if ( strcmp( var_name, "y" ) == 0 ) { histRhoi_c -> SetXTitle( "log10(y)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { histRhoi_c -> SetNdivisions( 605 ) ; }
 
+
+      histRhoi_c -> SetTitleOffset( title_offset_x, "x" ) ;
+      histRhoi_c -> SetTitleOffset( title_offset_y, "y" ) ;
+      histRhoi_c -> SetTitleSize( title_size, "x" ) ;
+      histRhoi_c -> SetTitleSize( title_size, "y" ) ;
+      histRhoi_c -> SetLabelSize( label_size, "x" ) ;
+      histRhoi_c -> SetLabelSize( label_size, "y" ) ;
+      histRhoi_c -> SetLabelOffset( label_offset_x, "x" ) ;
+      histRhoi_c -> SetLabelOffset( label_offset_y, "y" ) ;
+
+      sprintf( htitle, "%s", histRhoi_c -> GetTitle() ) ;
+      histRhoi_c -> SetTitle( "" ) ;
+
       histRhoi_c -> Draw("hist") ;
       histRhoi_b -> Draw("hist same") ;
       histRhoi_a -> Draw("hist same") ;
 
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
+
       gPad -> SetGridy(1) ;
 
-      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
-      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
+      //////////if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
+      //////////if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
 
-      TLegend* legend1 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
+      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.87 ; lw = 0.25 ; lh = 0.16 ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.87 ; lw = 0.25 ; lh = 0.16 ; }
+
+      TLegend* legend1 = new TLegend( lx, ly-lh, lx+lw, ly ) ;
       legend1 -> AddEntry( histRhoi_c, "electron" ) ;
       legend1 -> AddEntry( histRhoi_b, "Sigma" ) ;
       legend1 -> AddEntry( histRhoi_a, "DNN" ) ;
@@ -535,8 +567,8 @@ void Setup2DhistPalette() {
       can2 -> Clear() ;
       can2 -> cd() ;
 
-      h_unfold_err_ratio_b -> SetLineWidth(3) ;
-      h_unfold_err_ratio_c -> SetLineWidth(3) ;
+      h_unfold_err_ratio_b -> SetLineWidth(4) ;
+      h_unfold_err_ratio_c -> SetLineWidth(4) ;
 
       h_unfold_err_ratio_b -> SetLineColor(4) ;
       h_unfold_err_ratio_c -> SetLineColor(2) ;
@@ -552,23 +584,38 @@ void Setup2DhistPalette() {
 
       h_unfold_err_ratio_b -> SetYTitle( "Error ratio" ) ;
 
+      h_unfold_err_ratio_b -> SetTitle( "" ) ;
+      h_unfold_err_ratio_c -> SetTitle( "" ) ;
+
       if ( strcmp( var_name, "x" ) == 0 ) { h_unfold_err_ratio_b -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_ratio_b -> SetXTitle( "log10(y)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_ratio_b -> SetNdivisions( 605 ) ; }
 
+      h_unfold_err_ratio_b -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_unfold_err_ratio_b -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_unfold_err_ratio_b -> SetTitleSize( title_size, "x" ) ;
+      h_unfold_err_ratio_b -> SetTitleSize( title_size, "y" ) ;
+      h_unfold_err_ratio_b -> SetLabelSize( label_size, "x" ) ;
+      h_unfold_err_ratio_b -> SetLabelSize( label_size, "y" ) ;
+      h_unfold_err_ratio_b -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_unfold_err_ratio_b -> SetLabelOffset( label_offset_y, "y" ) ;
+
       h_unfold_err_ratio_b -> Draw("hist") ;
       h_unfold_err_ratio_c -> Draw("hist same") ;
 
+
       gPad -> SetGridy(1) ;
 
-      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.55 ; ly = 0.75 ; lw = 0.35 ; lh = 0.13 ; }
-      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.20 ; ly = 0.75 ; lw = 0.35 ; lh = 0.13 ; }
+      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.55 ; ly = 0.87 ; lw = 0.35 ; lh = 0.16 ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.20 ; ly = 0.87 ; lw = 0.35 ; lh = 0.16 ; }
 
-      TLegend* legend2 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
+      TLegend* legend2 = new TLegend( lx, ly-lh, lx+lw, ly ) ;
       legend2 -> AddEntry( h_unfold_err_ratio_c, "DNN / electron" ) ;
       legend2 -> AddEntry( h_unfold_err_ratio_b, "DNN / Sigma" ) ;
 
       legend2 -> Draw() ;
+
+      tt_title -> DrawTextNDC( title_x, title_y, "Unfolded error ratio " ) ;
 
       can2 -> Update() ; can2 -> Draw() ; gSystem -> ProcessEvents() ;
 
@@ -602,7 +649,7 @@ void Setup2DhistPalette() {
       h_unfold_err_c -> SetLineStyle(7) ;
 
 
-      h_unfold_err_c -> SetTitle( "Unfolded error" ) ;
+      h_unfold_err_c -> SetTitle( "" ) ;
       h_unfold_err_c -> SetYTitle( "Unfolded error (events)" ) ;
       h_unfold_err_c -> SetTitleOffset( 1.4, "y" ) ;
       h_unfold_err_c -> SetTitleOffset( 1.2, "x" ) ;
@@ -615,17 +662,27 @@ void Setup2DhistPalette() {
 
       if ( max_error > 0 ) h_unfold_err_c -> SetMaximum( max_error ) ;
 
+      h_unfold_err_c -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_unfold_err_c -> SetTitleOffset( 1.1*title_offset_y, "y" ) ;
+      h_unfold_err_c -> SetTitleSize( title_size, "x" ) ;
+      h_unfold_err_c -> SetTitleSize( title_size, "y" ) ;
+      h_unfold_err_c -> SetLabelSize( label_size, "x" ) ;
+      h_unfold_err_c -> SetLabelSize( label_size, "y" ) ;
+      h_unfold_err_c -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_unfold_err_c -> SetLabelOffset( label_offset_y, "y" ) ;
 
       h_unfold_err_c -> Draw("hist") ;
       h_unfold_err_b -> Draw("hist same") ;
       h_unfold_err_a -> Draw("hist same") ;
 
+      tt_title -> DrawTextNDC( title_x, title_y, "Unfolded error" ) ;
+
       gPad -> SetGridy(1) ;
 
-      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
-      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
+      if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.87 ; lw = 0.25 ; lh = 0.16 ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.87 ; lw = 0.25 ; lh = 0.16 ; }
 
-      TLegend* legend3 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
+      TLegend* legend3 = new TLegend( lx, ly-lh, lx+lw, ly ) ;
       legend3 -> AddEntry( h_unfold_err_c, "electron" ) ;
       legend3 -> AddEntry( h_unfold_err_b, "Sigma" ) ;
       legend3 -> AddEntry( h_unfold_err_a, "DNN" ) ;
