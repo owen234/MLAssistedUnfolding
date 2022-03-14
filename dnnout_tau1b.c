@@ -1,4 +1,3 @@
-//#define fill_hists1_cxx
 #define dnnout_tau1b_cxx
 //#include "fill_hists1.h"
 #include "dnnout_tau1b.h"
@@ -56,10 +55,10 @@ void dnnout_tau1b::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_ev
    TH2F* h_log10_y_gen_vs_obs_isigma = new TH2F( "h_log10_y_gen_vs_obs_isigma", "h_log10_y_gen_vs_obs_isigma", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
    TH2F* h_log10_y_gen_vs_obs_da     = new TH2F( "h_log10_y_gen_vs_obs_da", "h_log10_y_gen_vs_obs_da", nbins_obs, log10(ymin), log10(ymax),   nbins_gen, log10(ymin), log10(ymax) ) ;
    
-   TH2F* h_log10_tau1b_gen_vs_obs_dnn    = new TH2F( "h_log10_tau1b_gen_vs_obs_dnn",   "h_log10_tau1b_gen_vs_obs_dnn", nbins_obs, log10(tau1bmin), log10(tau1bmax),   nbins_gen, log10(tau1bmin), log10(tau1bmax) ) ;
-   TH2F* h_log10_tau1b_gen_vs_obs_e      = new TH2F( "h_log10_tau1b_gen_vs_obs_e",     "h_log10_tau1b_gen_vs_obs_e", nbins_obs, log10(tau1bmin), log10(tau1bmax),   nbins_gen, log10(tau1bmin), log10(tau1bmax) ) ;
-   TH2F* h_log10_tau1b_gen_vs_obs_isigma = new TH2F( "h_log10_tau1b_gen_vs_obs_isigma","h_log10_tau1b_gen_vs_obs_isigma", nbins_obs, log10(tau1bmin), log10(tau1bmax),   nbins_gen, log10(tau1bmin), log10(tau1bmax) ) ;
-   TH2F* h_log10_tau1b_gen_vs_obs_da     = new TH2F( "h_log10_tau1b_gen_vs_obs_da",    "h_log10_tau1b_gen_vs_obs_da", nbins_obs, log10(tau1bmin), log10(tau1bmax),   nbins_gen, log10(tau1bmin), log10(tau1bmax) ) ;
+   TH2F* h_log10_tau1b_gen_vs_obs_dnn    = new TH2F( "h_log10_tau1b_gen_vs_obs_dnn",   "h_log10_tau1b_gen_vs_obs_dnn"   , nbins_obs, 0., 1.,   nbins_gen, 0., 1. ) ;
+   TH2F* h_log10_tau1b_gen_vs_obs_e      = new TH2F( "h_log10_tau1b_gen_vs_obs_e",     "h_log10_tau1b_gen_vs_obs_e"     , nbins_obs, 0., 1.,   nbins_gen, 0., 1. ) ;
+   TH2F* h_log10_tau1b_gen_vs_obs_isigma = new TH2F( "h_log10_tau1b_gen_vs_obs_isigma","h_log10_tau1b_gen_vs_obs_isigma", nbins_obs, 0., 1.,   nbins_gen, 0., 1. ) ;
+   TH2F* h_log10_tau1b_gen_vs_obs_da     = new TH2F( "h_log10_tau1b_gen_vs_obs_da",    "h_log10_tau1b_gen_vs_obs_da    ", nbins_obs, 0., 1.,   nbins_gen, 0., 1. ) ;
 
    TH2F* h_x_gen_vs_obs_dnn    = new TH2F( "h_x_gen_vs_obs_dnn", "h_x_gen_vs_obs_dnn", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
    TH2F* h_x_gen_vs_obs_e      = new TH2F( "h_x_gen_vs_obs_e", "h_x_gen_vs_obs_e", nbins_obs, (xmin), (xmax),   nbins_gen, (xmin), (xmax) ) ;
@@ -164,6 +163,30 @@ void dnnout_tau1b::Loop( int nbins_gen, int nbins_obs, bool verbose, int last_ev
       h_log10_y_gen_vs_obs_e -> Fill( log10(obs_kine_ye), log10_gen_y, wgt ) ;
       h_log10_y_gen_vs_obs_isigma -> Fill( log10(obs_kine_ys), log10_gen_y, wgt ) ;
       h_log10_y_gen_vs_obs_da -> Fill( log10(obs_kine_ye), log10_gen_y, wgt ) ;
+
+      double dnn_right_tau1b = log(dnn_tau1b);
+      if ( dnn_right_tau1b<0 )    dnn_right_tau1b=0;
+      if ( dnn_right_tau1b>0.99 ) dnn_right_tau1b=0.99;
+      double obs_right_tau1be = (obs_tau1be);
+      if ( obs_right_tau1be<0 )    obs_right_tau1be=0;
+      if ( obs_right_tau1be>0.99 ) obs_right_tau1be=0.99;
+      double obs_right_tau1bda = (obs_tau1bda);
+      if ( obs_right_tau1bda<0 )    obs_right_tau1bda=0;
+      if ( obs_right_tau1bda>0.99 ) obs_right_tau1bda=0.99;
+      double obs_right_tau1bs = (obs_tau1bs);
+      if ( obs_right_tau1bs<0 )    obs_right_tau1bs=0;
+      if ( obs_right_tau1bs>0.99 ) obs_right_tau1bs=0.99;
+      /* cout<<"gen_tau1b: "<<gen_tau1b */
+      /*     <<"\tdnn "<<dnn_right_tau1b */
+      /*     <<"\te "  <<obs_right_tau1be */
+      /*     <<"\tda " <<obs_right_tau1bda */
+      /*     <<"\ts "  <<obs_right_tau1bs */
+      /*     <<endl; */
+
+      h_log10_tau1b_gen_vs_obs_dnn    -> Fill( dnn_right_tau1b,   gen_tau1b, wgt ) ;
+      h_log10_tau1b_gen_vs_obs_e      -> Fill( obs_right_tau1be,        gen_tau1b, wgt ) ;
+      h_log10_tau1b_gen_vs_obs_isigma -> Fill( obs_right_tau1bs,       gen_tau1b, wgt ) ;
+      h_log10_tau1b_gen_vs_obs_da     -> Fill( obs_right_tau1bda,        gen_tau1b, wgt ) ;
 
       h_x_gen_vs_obs_dnn -> Fill( (dnn_x), gen_kine_xis, wgt ) ;
       h_x_gen_vs_obs_e -> Fill( (obs_kine_xe), gen_kine_xis, wgt ) ;

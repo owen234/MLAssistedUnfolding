@@ -17,7 +17,7 @@ TH2F* get_hist( const char* hname ) {
 
 //----------
 
-   void unfold1( const char* hist_name = "h_log10_x_gen_vs_obs_dnn",
+   void unfold1( const char* hist_name = "h_log10_tau1b_gen_vs_obs_dnn", //"h_log10_x_gen_vs_obs_dnn",
                  int ngen = 1e5,
                  const char* input_file = "unfold-hists-input-nbins_gen020_obs050.root" ) {
 
