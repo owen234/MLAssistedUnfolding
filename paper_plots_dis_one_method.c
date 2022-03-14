@@ -322,6 +322,11 @@ void Setup2DhistPalette() {
       sprintf( htitle, "Response matrix, %s", method_name ) ;
       h_in_gen_vs_obs_a -> SetTitle( htitle ) ;
 
+      if ( strcmp( var_name, "y" ) == 0 ) { h_in_gen_vs_obs_a -> SetNdivisions( 605 ) ; }
+
+      h_in_gen_vs_obs_a -> SetTitleSize( 0.045, "x" ) ;
+      h_in_gen_vs_obs_a -> SetTitleSize( 0.045, "y" ) ;
+
       h_in_gen_vs_obs_a -> Draw("colz") ;
       TExec* change_hist_palette = new TExec( "change_hist_palette", "Setup2DhistPalette();" );
       change_hist_palette->Draw() ;
@@ -351,9 +356,13 @@ void Setup2DhistPalette() {
 
       if ( strcmp( var_name, "x" ) == 0 ) { histMunfold_a -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { histMunfold_a -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { histMunfold_a -> SetNdivisions( 605 ) ; }
 
       histMunfold_a -> SetLineWidth(3) ;
       h_gen_compare_a -> SetLineWidth(3) ;
+
+      histMunfold_a -> SetTitleSize( 0.045, "x" ) ;
+      histMunfold_a -> SetTitleSize( 0.045, "y" ) ;
 
       histMunfold_a -> Draw() ;
       h_gen_compare_a -> Draw("same hist") ;
@@ -385,6 +394,10 @@ void Setup2DhistPalette() {
 
       if ( strcmp( var_name, "x" ) == 0 ) { correlation_matrix_a -> SetXTitle( "log10(x)" ) ; correlation_matrix_a -> SetYTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { correlation_matrix_a -> SetXTitle( "log10(y)" ) ; correlation_matrix_a -> SetYTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { correlation_matrix_a -> SetNdivisions( 605 ) ; }
+
+      correlation_matrix_a -> SetTitleSize( 0.045, "x" ) ;
+      correlation_matrix_a -> SetTitleSize( 0.045, "y" ) ;
 
       correlation_matrix_a -> Draw( "colz" ) ;
       TExec* change_cor_palette = new TExec( "change_cor_palette", "SetupCorrelationPalette();" );
@@ -406,10 +419,14 @@ void Setup2DhistPalette() {
       can4 -> Clear() ;
       can4 -> cd() ;
 
+      h_normalized_response -> SetTitleSize( 0.045, "x" ) ;
+      h_normalized_response -> SetTitleSize( 0.045, "y" ) ;
+
       h_normalized_response -> SetTitleOffset( 1.2, "x" ) ;
       h_normalized_response -> SetTitleOffset( 1.6, "y" ) ;
       sprintf( htitle, "Normalized response matrix, %s", method_name ) ;
       h_normalized_response -> SetTitle( htitle ) ;
+      if ( strcmp( var_name, "y" ) == 0 ) { h_normalized_response -> SetNdivisions( 605 ) ; }
 
       h_normalized_response -> Draw("colz") ;
       TExec* change_hist_palette2 = new TExec( "change_hist_palette2", "Setup2DhistPalette();" );

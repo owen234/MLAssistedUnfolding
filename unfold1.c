@@ -7,6 +7,8 @@
 
 #include "histio.c"
 
+#include "tunfold-17.9/TUnfoldDensity.h"
+
 TH2F* get_hist( const char* hname ) {
    TH2F* hp = (TH2F*) gDirectory -> FindObject( hname ) ;
    if ( hp == 0x0 ) { printf("\n\n *** can't find %s\n\n", hname ) ; gSystem->Exit(-1) ; }
@@ -17,7 +19,11 @@ TH2F* get_hist( const char* hname ) {
 
    void unfold1( const char* hist_name = "h_log10_x_gen_vs_obs_dnn",
                  int ngen = 1e5,
-                 const char* input_file = "unfold-hists-input-nbins_gen020_obs035.root" ) {
+                 const char* input_file = "unfold-hists-input-nbins_gen020_obs050.root" ) {
+
+      printf("\n\n Loading TUnfold shared library.\n\n") ;
+      gSystem -> Load( "tunfold-17.9/libunfold.a" ) ;
+      printf("\n\n Done.\n\n") ;
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -37,7 +43,10 @@ TH2F* get_hist( const char* hname ) {
       h_obs_random->FillRandom( h_obs_source, ngen ) ;
 
 
-      TUnfoldDensity unfold( h_in_gen_vs_obs, TUnfold::kHistMapOutputVert ) ;
+      printf("\n\n ----- Creating a TUnfoldDensity instance now.\n") ;
+      //TUnfoldDensity unfold( h_in_gen_vs_obs, TUnfold::kHistMapOutputVert ) ;
+      TUnfoldDensityV17 unfold( h_in_gen_vs_obs, TUnfold::kHistMapOutputVert ) ;
+      printf("\n\n ----- Done.\n") ;
 
       int return_status = unfold.SetInput( h_obs_random ) ;
       printf("  Return status for SetInput: %d\n", return_status ) ;

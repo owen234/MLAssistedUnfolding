@@ -494,8 +494,12 @@ void Setup2DhistPalette() {
       histRhoi_c -> SetTitleOffset( 1.4, "y" ) ;
       histRhoi_c -> SetTitleOffset( 1.2, "x" ) ;
 
+      histRhoi_c -> SetTitleSize( 0.045, "x" ) ;
+      histRhoi_c -> SetTitleSize( 0.045, "y" ) ;
+
       if ( strcmp( var_name, "x" ) == 0 ) { histRhoi_c -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { histRhoi_c -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { histRhoi_c -> SetNdivisions( 605 ) ; }
 
       histRhoi_c -> Draw("hist") ;
       histRhoi_b -> Draw("hist same") ;
@@ -543,10 +547,14 @@ void Setup2DhistPalette() {
 
       h_unfold_err_ratio_b -> SetTitleOffset( 1.4, "y" ) ;
       h_unfold_err_ratio_b -> SetTitleOffset( 1.2, "x" ) ;
+      h_unfold_err_ratio_b -> SetTitleSize( 0.045, "x" ) ;
+      h_unfold_err_ratio_b -> SetTitleSize( 0.045, "y" ) ;
+
       h_unfold_err_ratio_b -> SetYTitle( "Error ratio" ) ;
 
       if ( strcmp( var_name, "x" ) == 0 ) { h_unfold_err_ratio_b -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_ratio_b -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_ratio_b -> SetNdivisions( 605 ) ; }
 
       h_unfold_err_ratio_b -> Draw("hist") ;
       h_unfold_err_ratio_c -> Draw("hist same") ;
@@ -598,11 +606,15 @@ void Setup2DhistPalette() {
       h_unfold_err_c -> SetYTitle( "Unfolded error (events)" ) ;
       h_unfold_err_c -> SetTitleOffset( 1.4, "y" ) ;
       h_unfold_err_c -> SetTitleOffset( 1.2, "x" ) ;
+      h_unfold_err_c -> SetTitleSize( 0.045, "x" ) ;
+      h_unfold_err_c -> SetTitleSize( 0.045, "y" ) ;
 
       if ( strcmp( var_name, "x" ) == 0 ) { h_unfold_err_c -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_c -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { h_unfold_err_c -> SetNdivisions( 605 ) ; }
 
       if ( max_error > 0 ) h_unfold_err_c -> SetMaximum( max_error ) ;
+
 
       h_unfold_err_c -> Draw("hist") ;
       h_unfold_err_b -> Draw("hist same") ;
