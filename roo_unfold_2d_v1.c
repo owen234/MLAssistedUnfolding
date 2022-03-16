@@ -35,7 +35,7 @@ TH2F* trim_unused_bins( TH2F* hp, RooUnfoldResponse* rur ) {
       TH1* h_gen_source = rur -> Htruth() ;
       for ( int i=1; i<=h_gen_source->GetNbinsX(); i++ ) {
          double x = h_gen_source->GetXaxis()->GetBinCenter( i ) ;
-         for ( int j=1; j<=h_gen_source->GetNbinsX(); j++ ) {
+         for ( int j=1; j<=h_gen_source->GetNbinsY(); j++ ) {
             double y = h_gen_source->GetYaxis()->GetBinCenter( j ) ;
             float entries = h_gen_source -> GetBinContent( i, j ) ;
             if ( entries <= 0 ) {

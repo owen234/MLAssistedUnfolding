@@ -61,12 +61,29 @@ void Setup2DhistPalette() {
       char htitle[1000] ;
       char fname[1000] ;
 
+      float label_size = 0.050 ;
+      float title_size = 0.055 ;
+      float label_offset_y = 0.015 ;
+      float label_offset_x = 0.015 ;
+      float label_offset_z = 0.010 ;
+      float title_offset_x = 1.1 ;
+      float title_offset_y = 1.57 ;
+      float title_x = 0.05 ;
+      float title_y = 0.94 ;
+
+
       gSystem -> Exec( "mkdir -p paper-plots" ) ;
 
       TRandom3* tran = new TRandom3(1249) ;
 
       gDirectory -> Delete( "h*" ) ;
       gStyle -> SetPalette( kBird ) ;
+
+      ////gStyle -> SetTitleW( 1.00 ) ;
+      ////gStyle -> SetTitleH( 0.06 ) ;
+
+      TText* tt_title = new TText() ;
+      tt_title -> SetTextSize( 0.05 ) ;
 
       loadHist( input_file ) ;
 
@@ -296,9 +313,11 @@ void Setup2DhistPalette() {
       histRhoi_a->SetMaximum(1.1) ;
 
 
-      gStyle -> SetPadRightMargin(0.18) ;
-      gStyle -> SetPadLeftMargin(0.15) ;
-      gStyle -> SetPadBottomMargin(0.15) ;
+      //gStyle -> SetPadRightMargin(0.18) ;
+      //gStyle -> SetPadLeftMargin(0.18) ;
+      gStyle -> SetPadRightMargin(0.15) ;
+      gStyle -> SetPadLeftMargin(0.20) ;
+      gStyle -> SetPadBottomMargin(0.18) ;
       gStyle -> SetTitleBorderSize(0) ;
       gStyle -> SetTitleY(0.975) ;
 
@@ -317,16 +336,40 @@ void Setup2DhistPalette() {
       can1 -> Clear() ;
       can1 -> cd() ;
 
-      h_in_gen_vs_obs_a -> SetTitleOffset( 1.2, "x" ) ;
-      h_in_gen_vs_obs_a -> SetTitleOffset( 1.6, "y" ) ;
+
+      //////////////h_in_gen_vs_obs_a -> SetTitleOffset( 1.2, "x" ) ;
+      //////////////h_in_gen_vs_obs_a -> SetTitleOffset( 1.6, "y" ) ;
+      //////////////h_in_gen_vs_obs_a -> SetTitleSize( 0.045, "x" ) ;
+      //////////////h_in_gen_vs_obs_a -> SetTitleSize( 0.045, "y" ) ;
+
+      h_in_gen_vs_obs_a -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_in_gen_vs_obs_a -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_in_gen_vs_obs_a -> SetTitleSize( title_size, "x" ) ;
+      h_in_gen_vs_obs_a -> SetTitleSize( title_size, "y" ) ;
+      h_in_gen_vs_obs_a -> SetLabelSize( label_size, "x" ) ;
+      h_in_gen_vs_obs_a -> SetLabelSize( label_size, "y" ) ;
+      h_in_gen_vs_obs_a -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_in_gen_vs_obs_a -> SetLabelOffset( label_offset_y, "y" ) ;
+
+
       sprintf( htitle, "Response matrix, %s", method_name ) ;
       h_in_gen_vs_obs_a -> SetTitle( htitle ) ;
+
+      if ( strcmp( var_name, "y" ) == 0 ) { h_in_gen_vs_obs_a -> SetNdivisions( 605 ) ; }
+
+
 
       h_in_gen_vs_obs_a -> Draw("colz") ;
       TExec* change_hist_palette = new TExec( "change_hist_palette", "Setup2DhistPalette();" );
       change_hist_palette->Draw() ;
       h_in_gen_vs_obs_a -> Draw("colz same") ;
       h_in_gen_vs_obs_a -> Draw("axis same") ;
+
+      h_in_gen_vs_obs_a -> GetZaxis() -> SetLabelSize( label_size ) ;
+      h_in_gen_vs_obs_a -> GetZaxis() -> SetLabelOffset( label_offset_z ) ;
+
+      h_in_gen_vs_obs_a -> SetTitle( "" ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
 
       can1 -> Update() ; can1 -> Draw() ; gSystem -> ProcessEvents() ;
 
@@ -345,15 +388,30 @@ void Setup2DhistPalette() {
       can2 -> Clear() ;
       can2 -> cd() ;
 
-      histMunfold_a -> SetTitleOffset( 1.2, "x" ) ;
-      histMunfold_a -> SetTitleOffset( 1.8, "y" ) ;
+      /////////histMunfold_a -> SetTitleOffset( 1.2, "x" ) ;
+      /////////histMunfold_a -> SetTitleOffset( 1.8, "y" ) ;
+      /////////histMunfold_a -> SetTitleSize( 0.045, "x" ) ;
+      /////////histMunfold_a -> SetTitleSize( 0.045, "y" ) ;
+
+      histMunfold_a -> SetTitleOffset( title_offset_x, "x" ) ;
+      histMunfold_a -> SetTitleOffset( 1.2*title_offset_y, "y" ) ;
+      histMunfold_a -> SetTitleSize( title_size, "x" ) ;
+      histMunfold_a -> SetTitleSize( title_size, "y" ) ;
+      histMunfold_a -> SetLabelSize( label_size, "x" ) ;
+      histMunfold_a -> SetLabelSize( label_size, "y" ) ;
+      histMunfold_a -> SetLabelOffset( label_offset_x, "x" ) ;
+      histMunfold_a -> SetLabelOffset( label_offset_y, "y" ) ;
+
+
       histMunfold_a -> SetYTitle( "Events" ) ;
 
       if ( strcmp( var_name, "x" ) == 0 ) { histMunfold_a -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { histMunfold_a -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { histMunfold_a -> SetNdivisions( 605 ) ; }
 
       histMunfold_a -> SetLineWidth(3) ;
       h_gen_compare_a -> SetLineWidth(3) ;
+
 
       histMunfold_a -> Draw() ;
       h_gen_compare_a -> Draw("same hist") ;
@@ -363,6 +421,10 @@ void Setup2DhistPalette() {
       legend -> AddEntry( histMunfold_a, "Unfolded" ) ;
       legend -> AddEntry( h_gen_compare_a, "Gen" ) ;
       legend -> Draw() ;
+
+      sprintf( htitle, "%s", histMunfold_a -> GetTitle() ) ;
+      histMunfold_a -> SetTitle( "" ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
 
       can2 -> Update() ; can2 -> Draw() ; gSystem -> ProcessEvents() ;
 
@@ -380,17 +442,37 @@ void Setup2DhistPalette() {
       can3 -> Clear() ;
       can3 -> cd() ;
 
-      correlation_matrix_a -> SetTitleOffset( 1.2, "x" ) ;
-      correlation_matrix_a -> SetTitleOffset( 1.6, "y" ) ;
+      /////////correlation_matrix_a -> SetTitleOffset( 1.2, "x" ) ;
+      /////////correlation_matrix_a -> SetTitleOffset( 1.6, "y" ) ;
+      /////////correlation_matrix_a -> SetTitleSize( 0.045, "x" ) ;
+      /////////correlation_matrix_a -> SetTitleSize( 0.045, "y" ) ;
+
+      correlation_matrix_a -> SetTitleOffset( title_offset_x, "x" ) ;
+      correlation_matrix_a -> SetTitleOffset( title_offset_y, "y" ) ;
+      correlation_matrix_a -> SetTitleSize( title_size, "x" ) ;
+      correlation_matrix_a -> SetTitleSize( title_size, "y" ) ;
+      correlation_matrix_a -> SetLabelSize( label_size, "x" ) ;
+      correlation_matrix_a -> SetLabelSize( label_size, "y" ) ;
+      correlation_matrix_a -> SetLabelOffset( label_offset_x, "x" ) ;
+      correlation_matrix_a -> SetLabelOffset( label_offset_y, "y" ) ;
 
       if ( strcmp( var_name, "x" ) == 0 ) { correlation_matrix_a -> SetXTitle( "log10(x)" ) ; correlation_matrix_a -> SetYTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { correlation_matrix_a -> SetXTitle( "log10(y)" ) ; correlation_matrix_a -> SetYTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "y" ) == 0 ) { correlation_matrix_a -> SetNdivisions( 605 ) ; }
+
 
       correlation_matrix_a -> Draw( "colz" ) ;
       TExec* change_cor_palette = new TExec( "change_cor_palette", "SetupCorrelationPalette();" );
       change_cor_palette->Draw() ;
       correlation_matrix_a -> Draw( "colz same" ) ;
       correlation_matrix_a -> Draw( "axis same" ) ;
+
+      correlation_matrix_a -> GetZaxis() -> SetLabelSize( label_size ) ;
+      correlation_matrix_a -> GetZaxis() -> SetLabelOffset( label_offset_z ) ;
+
+      sprintf( htitle, "%s", correlation_matrix_a -> GetTitle() ) ;
+      correlation_matrix_a -> SetTitle( "" ) ;
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
 
       can3 -> Update() ; can3 -> Draw() ; gSystem -> ProcessEvents() ;
 
@@ -406,16 +488,37 @@ void Setup2DhistPalette() {
       can4 -> Clear() ;
       can4 -> cd() ;
 
-      h_normalized_response -> SetTitleOffset( 1.2, "x" ) ;
-      h_normalized_response -> SetTitleOffset( 1.6, "y" ) ;
+      /////////h_normalized_response -> SetTitleOffset( 1.2, "x" ) ;
+      /////////h_normalized_response -> SetTitleOffset( 1.6, "y" ) ;
+      /////////h_normalized_response -> SetTitleSize( 0.045, "x" ) ;
+      /////////h_normalized_response -> SetTitleSize( 0.045, "y" ) ;
+
+      h_normalized_response -> SetTitleOffset( title_offset_x, "x" ) ;
+      h_normalized_response -> SetTitleOffset( title_offset_y, "y" ) ;
+      h_normalized_response -> SetTitleSize( title_size, "x" ) ;
+      h_normalized_response -> SetTitleSize( title_size, "y" ) ;
+      h_normalized_response -> SetLabelSize( label_size, "x" ) ;
+      h_normalized_response -> SetLabelSize( label_size, "y" ) ;
+      h_normalized_response -> SetLabelOffset( label_offset_x, "x" ) ;
+      h_normalized_response -> SetLabelOffset( label_offset_y, "y" ) ;
+
+
+
       sprintf( htitle, "Normalized response matrix, %s", method_name ) ;
-      h_normalized_response -> SetTitle( htitle ) ;
+      ////h_normalized_response -> SetTitle( htitle ) ;
+      h_normalized_response -> SetTitle( "" ) ;
+      if ( strcmp( var_name, "y" ) == 0 ) { h_normalized_response -> SetNdivisions( 605 ) ; }
 
       h_normalized_response -> Draw("colz") ;
       TExec* change_hist_palette2 = new TExec( "change_hist_palette2", "Setup2DhistPalette();" );
       change_hist_palette2->Draw() ;
       h_normalized_response -> Draw("colz same") ;
       h_normalized_response -> Draw("axis same") ;
+
+      h_normalized_response -> GetZaxis() -> SetLabelSize( label_size ) ;
+      h_normalized_response -> GetZaxis() -> SetLabelOffset( label_offset_z ) ;
+
+      tt_title -> DrawTextNDC( title_x, title_y, htitle ) ;
 
       can4 -> Update() ; can4 -> Draw() ; gSystem -> ProcessEvents() ;
 
