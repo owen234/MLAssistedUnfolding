@@ -176,6 +176,8 @@ TH2F* get_hist( const char* hname ) {
       h_gen_source -> Draw("hist") ;
 
 
+      can1->SaveAs("test.png");
+      can1->SaveAs("test.pdf");
 
    }
 

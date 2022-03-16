@@ -359,7 +359,7 @@ void Setup2DhistPalette() {
       h_gen_compare_a -> Draw("same hist") ;
       histMunfold_a -> Draw( "same" ) ;
 
-      TLegend* legend = new TLegend( 0.40, 0.20, 0.70, 0.35 ) ;
+      TLegend* legend = new TLegend( 0.60, 0.40, 0.90, 0.55 ) ;
       legend -> AddEntry( histMunfold_a, "Unfolded" ) ;
       legend -> AddEntry( h_gen_compare_a, "Gen" ) ;
       legend -> Draw() ;

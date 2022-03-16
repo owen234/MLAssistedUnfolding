@@ -449,6 +449,9 @@ void Setup2DhistPalette() {
       histRhoi_a->SetMaximum(1.1) ;
       histRhoi_b->SetMaximum(1.1) ;
       histRhoi_c->SetMaximum(1.1) ;
+      histRhoi_a->SetMinimum(0.0) ;
+      histRhoi_b->SetMinimum(0.0) ;
+      histRhoi_c->SetMinimum(0.0) ;
 
       TExec* change_hist_palette = new TExec( "change_hist_palette", "Setup2DhistPalette();" );
       TExec* change_cor_palette = new TExec( "change_cor_palette", "SetupCorrelationPalette();" );
@@ -496,6 +499,7 @@ void Setup2DhistPalette() {
 
       if ( strcmp( var_name, "x" ) == 0 ) { histRhoi_c -> SetXTitle( "log10(x)" ) ; }
       if ( strcmp( var_name, "y" ) == 0 ) { histRhoi_c -> SetXTitle( "log10(y)" ) ; }
+      if ( strcmp( var_name, "tau1b" ) == 0 ) { histRhoi_c -> SetXTitle( "#tau_{1}^{b}" ) ; }
 
       histRhoi_c -> Draw("hist") ;
       histRhoi_b -> Draw("hist same") ;
@@ -505,7 +509,8 @@ void Setup2DhistPalette() {
 
       if ( strcmp( var_name, "x" ) == 0 ) { lx = 0.20 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
       if ( strcmp( var_name, "y" ) == 0 ) { lx = 0.65 ; ly = 0.75 ; lw = 0.25 ; lh = 0.13 ; }
-
+      if ( strcmp( var_name, "tau1b" ) == 0 ) { lx = 0.65 ; ly = 0.35 ; lw = 0.25 ; lh = 0.13 ; }
+      
       TLegend* legend1 = new TLegend( lx, ly, lx+lw, ly+lh ) ;
       legend1 -> AddEntry( histRhoi_c, "electron" ) ;
       legend1 -> AddEntry( histRhoi_b, "Sigma" ) ;
