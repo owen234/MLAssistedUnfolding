@@ -21,6 +21,80 @@ TH2F* get_hist( const char* hname ) {
    return hp ;
 }
 
+#ifndef MyUnf
+#define MyUnf
+class MyTUnfoldDensity : public TUnfoldDensity {
+   using TUnfoldDensity::TUnfoldDensity;
+public:
+   inline const TMatrixDSparse *MyGetE   (void) const { return GetE(); }
+   inline const TMatrixDSparse *MyGetEinv(void) const { return GetEinv(); }
+   /// folded back result
+   inline const TMatrixDSparse *MyGetAx(void) const { return fA; }
+   inline const TMatrixDSparse *MyGetDXDY(void) const { return GetDXDY(); }
+   //   TMatrixDSparse *fDXDYVyy = MultiplyMSparseMSparse(fDXDY,fVyy)
+   //   fVxx = MultiplyMSparseMSparseTranspVector(fDXDYVyy,fDXDY,0);
+   // posterior response matrix
+   inline const TMatrixDSparse *GetPosteriorResponseMatrix(void) const { return MultiplyMSparseMSparse(GetDXDY(),fA); } 
+   TH2D GetPosteriorResponseHist(double zmin=0) const {
+      TH1 *output = this->GetOutput("temp");
+      TH2D PP("posterior response matrix","Posterior response matrix;Gen;Obs",
+              output->GetNbinsX(),output->GetXaxis()->GetXbins()->GetArray(),
+              output->GetNbinsX(),output->GetXaxis()->GetXbins()->GetArray() );
+      const TMatrixDSparse *MatP = GetPosteriorResponseMatrix();
+      for ( int ii = 0 ; ii<PP.GetNbinsX() ;ii++ ) {
+         for ( int jj = 0 ; jj<PP.GetNbinsX() ;jj++ ) {
+            double zval =(*MatP)[ii][jj];
+            if ( zval != 0 && zval < zmin) zval = 0;//max(zval,zmin);
+            PP.SetBinContent(ii+1,jj+1,zval);
+         }
+      }
+      PP.SetMinimum(zmin);
+      delete output;
+      return PP;//MultiplyMSparseMSparse(GetDXDY(),fA);
+   } 
+};
+#endif
+
+
+
+double Calc_r(const TMatrixDSparse* AA) {
+   const TMatrixDSparse& A = (*AA);
+      //TMatrixT (Int_t nrows, Int_t ncols)
+      const int NN = AA->GetNcols();
+      TMatrixD oneT (  1, NN ); // j
+      TMatrixD ones ( NN,  1 ); // jT
+      TMatrixD numT (  1, NN ); // r
+      TMatrixD nums ( NN,  1 ); // rT
+      TMatrixD num2T(  1, NN ); // r2
+      TMatrixD num2s( NN,  1 ); // r2T
+      for ( int ii = 0 ; ii<NN; ii++ ) {
+         oneT [0][ii] = 1;
+         ones [ii][0] = 1;
+         numT [0][ii] = ii+1;
+         nums [ii][0] = ii+1;
+         num2T[0][ii] = pow(ii+1,2);
+         num2s[ii][0] = pow(ii+1,2);
+      }
+      double n   = (oneT  * A * ones )[0][0];
+      double Sx  = (numT  * A * ones )[0][0];
+      double Sy  = (oneT  * A * nums )[0][0];
+      double Sx2 = (num2T * A * ones )[0][0];
+      double Sy2 = (oneT  * A * num2s)[0][0];
+      double Sxy = (numT  * A * nums )[0][0];
+
+      double num    = n * Sxy - Sx*Sy;
+      double denom2 = (n*Sx2 - Sx*Sx ) * (n*Sy2 - Sy*Sy);
+      double denom  = sqrt(denom2);
+      double r      = num/denom;
+      return r;
+}
+
+double Calc_r(const TMatrixD& AA) {
+   TMatrixDSparse BB(AA);
+   return Calc_r(&BB);
+}
+
+
 void SetupCorrelationPalette() {
 
       static Bool_t initialized = kFALSE ;
@@ -154,7 +228,7 @@ void Setup2DhistPalette() {
 
 
 
-      TUnfoldDensity unfold_a( h_in_gen_vs_obs_a, TUnfold::kHistMapOutputVert ) ;
+      MyTUnfoldDensity unfold_a( h_in_gen_vs_obs_a, TUnfold::kHistMapOutputVert ) ;
 
       int return_status_a = unfold_a.SetInput( h_obs_random_a ) ;
       printf("  Return status for SetInput A: %d\n", return_status_a ) ;
@@ -194,7 +268,7 @@ void Setup2DhistPalette() {
       std::cout<<"A tau="<<unfold_a.GetTau()<<"\n";
       std::cout<<"A chi**2="<<unfold_a.GetChi2A()<<"+"<<unfold_a.GetChi2L() <<" / "<<unfold_a.GetNdf()<<"\n";
 
-
+      
       //==========================================================================
       // retrieve results into histograms
 
@@ -202,7 +276,11 @@ void Setup2DhistPalette() {
       TH1 *histMunfold_a = unfold_a.GetOutput("Unfolded_a");
       sprintf( htitle, "Unfolded distribution, %s", method_name ) ;
       histMunfold_a -> SetTitle( htitle ) ;
-
+      {
+         TString xtitle(histMunfold_a->GetXaxis()->GetTitle());
+         xtitle.ReplaceAll("TAU1B","#tau_{ 1}^{ b}");
+         histMunfold_a->GetXaxis()->SetTitle(xtitle);
+      }
       // get unfolding result, folded back
       TH1 *histMdetFold_a = unfold_a.GetFoldedOutput("FoldedBack_a");
 
@@ -218,7 +296,12 @@ void Setup2DhistPalette() {
       TH2* correlation_matrix_a = (TH2*) histEmatTotal_a -> Clone( "correlation_matrix_a" ) ;
       sprintf( htitle, "Correlation coefficients, %s", method_name ) ;
       correlation_matrix_a -> SetTitle( htitle ) ;
-
+      {
+         TString xtitle(correlation_matrix_a->GetXaxis()->GetTitle());
+         xtitle.ReplaceAll("TAU1B","#tau_{ 1}^{ b}");
+         correlation_matrix_a->GetXaxis()->SetTitle(xtitle);
+      }
+      
       for ( int xbi=1; xbi<=histEmatTotal_a->GetNbinsX(); xbi++ ) {
          for ( int ybi=1; ybi<=histEmatTotal_a->GetNbinsY(); ybi++ ) {
 
@@ -354,7 +437,14 @@ void Setup2DhistPalette() {
 
       sprintf( htitle, "Response matrix, %s", method_name ) ;
       h_in_gen_vs_obs_a -> SetTitle( htitle ) ;
-
+      {
+         TString xtitle(h_in_gen_vs_obs_a->GetXaxis()->GetTitle());
+         xtitle.ReplaceAll("TAU1B","#tau_{ 1}^{ b}");
+         h_in_gen_vs_obs_a->GetXaxis()->SetTitle(xtitle);
+         TString ytitle(h_in_gen_vs_obs_a->GetYaxis()->GetTitle());
+         ytitle.ReplaceAll("TAU1B","#tau_{ 1}^{ b}");
+         h_in_gen_vs_obs_a->GetYaxis()->SetTitle(ytitle);
+      }
       if ( strcmp( var_name, "y" ) == 0 ) { h_in_gen_vs_obs_a -> SetNdivisions( 605 ) ; }
 
 
@@ -507,6 +597,11 @@ void Setup2DhistPalette() {
       sprintf( htitle, "Normalized response matrix, %s", method_name ) ;
       ////h_normalized_response -> SetTitle( htitle ) ;
       h_normalized_response -> SetTitle( "" ) ;
+      {
+         TString xtitle(h_normalized_response->GetXaxis()->GetTitle());
+         xtitle.ReplaceAll("TAU1B","#tau_{ 1}^{ b}");
+         h_normalized_response->GetXaxis()->SetTitle(xtitle);
+      }
       if ( strcmp( var_name, "y" ) == 0 ) { h_normalized_response -> SetNdivisions( 605 ) ; }
 
       h_normalized_response -> Draw("colz") ;
@@ -528,8 +623,47 @@ void Setup2DhistPalette() {
       can4 -> SaveAs( fname ) ;
 
 
+      //==========================================================================
+      // 
+      // calculate posterior response matrix [arXiv:2203.09579]
+      // P = M A
+      // M = E A^T V^-1   with E = (ATWA+L)^-1
+      
+      const TMatrixDSparse *PosteriorResponseMatrix = unfold_a.GetPosteriorResponseMatrix();
+      // PosteriorResponseMatrix->Print();
+
+      
+      TH2D PosteriorResponseHist = unfold_a.GetPosteriorResponseHist(1e-5);
+      PosteriorResponseHist.SetXTitle( h_normalized_response->GetXaxis()->GetTitle()); 
+      PosteriorResponseHist.SetYTitle( h_normalized_response->GetYaxis()->GetTitle()); 
+
+      //TMatrixT (Int_t nrows, Int_t ncols)
+      double r = Calc_r(PosteriorResponseMatrix);
+      int NN = PosteriorResponseMatrix->GetNrows();
+      
+      
+      //PosteriorResponseHist.Print("all");
+      double trace = 0;
+      for ( int ii = 0 ; ii<PosteriorResponseHist.GetNbinsX() ; ii++ ) trace+=PosteriorResponseHist.GetBinContent(ii+1,ii+1);
+      PosteriorResponseHist.SetTitle( Form("Posterior response matrix, %s - Trace/n=%.3f", method_name, trace/NN ) ) ;
+
+      //PosteriorResponseHist.SetTitle( Form("#splitline{Posterior response matrix, %s}{#scale[0.8]{Trace/n=%.2f,  1-r(A)=%.2e}}", method_name, trace/NN, 1-r ) ) ;
+      // c.SetTopMargin(0.16);
+      // c.SetBottomMargin(0.14);
+
+      TCanvas c("c","c",800,800);
+      PosteriorResponseHist.Draw("colz");
+      c.SetLogz();
+      c.SaveAs(Form("paper-plots/dis-posterior-response-%s-%s.pdf",var_name, method_name));
+      c.SaveAs(Form("paper-plots/dis-posterior-response-%s-%s.png",var_name, method_name));
+
+      // reset
+      gStyle->SetTitleY(0.975);
+            
      //-----
 
+
+      
 
       printf("\n\n\n") ;
 
@@ -554,3 +688,50 @@ void Setup2DhistPalette() {
 
 
 
+
+
+void test_calc_r() {
+
+      {
+         TMatrixD B(3,3);
+         B[0][0] = 6;
+         B[1][0] = 1;
+         B[2][0] = 0;
+         B[0][1] = 1;
+         B[1][1] = 5;
+         B[2][1] = 2;
+         B[0][2] = 1;
+         B[1][2] = 3;
+         B[2][2] = 6;
+         B.Print();
+         double rB = Calc_r(B);
+         cout<<"rB: "<<rB<<endl;
+      }
+
+      {
+         TMatrixD D(5,5);
+         D[0][0] = 2;
+         D[1][0] = 1;
+
+         D[0][1] = 1;
+         D[1][1] = 3;
+         D[2][1] = 2;
+
+         D[1][2] = 2;
+         D[2][2] = 3;
+         D[3][2] = 4;
+
+         D[2][3] = 1;
+         D[3][3] = 2;
+         D[4][3] = 3;
+
+         D[3][4] = 1;
+         D[4][4] = 1;
+
+         D.Print();
+         double rD = Calc_r(D);
+         cout<<"rD: "<<rD<<endl;
+      }
+         exit(0);
+
+}
