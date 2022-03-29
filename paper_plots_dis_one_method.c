@@ -267,6 +267,7 @@ void Setup2DhistPalette() {
       //
       std::cout<<"A tau="<<unfold_a.GetTau()<<"\n";
       std::cout<<"A chi**2="<<unfold_a.GetChi2A()<<"+"<<unfold_a.GetChi2L() <<" / "<<unfold_a.GetNdf()<<"\n";
+      std::cout<<"A rho_avg="<<unfold_a.GetRhoAvg()<<"\trho_max / "<<unfold_a.GetRhoMax()<<"\n";
 
       
       //==========================================================================
